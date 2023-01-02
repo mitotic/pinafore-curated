@@ -4,7 +4,7 @@ import { offsetDaysInDate, nextTimeInterval, hhmm2localTime } from './curationSt
 
 import { USER_FOLLOW_UPDATE, getStatus, setStatus, getStatusKey, newUserFollow } from './curationCache.js'
 
-export const MAHOOT_CODE_VERSION = '0.3.8'
+export const MAHOOT_CODE_VERSION = '0.3.9'
 
 export const MAHOOT_DATA_VERSION = '0.3'
 

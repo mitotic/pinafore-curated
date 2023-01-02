@@ -1,6 +1,6 @@
 # Mahoot User Guide
 
-Version 0.3.8
+Version 0.3.9
 
 - [Getting started](#getting-started)
 
