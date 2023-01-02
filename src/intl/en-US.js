@@ -12,9 +12,9 @@ export default {
       an alternative web client for Mastodon.
     </p> <p>
     For more information on using Mahoot, see the
-    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/README.md">README</a>
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/master/README.md">README</a>
     file or the
-    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md">Mahoot User Guide</a>
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md">Mahoot User Guide</a>
     on Github.
     </p> <p>
     For more information on Pinafore, see its
@@ -377,9 +377,9 @@ export default {
    (<a rel="noopener" target="_blank" href="https://fediscience.org/@RSarava">@RSarava@Fediscience.org</a>)
     </p> <p>
     For more information on using Mahoot, see the
-    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/README.md">README</a>
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/master/README.md">README</a>
     file or the
-    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md">Mahoot User Guide</a>
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md">Mahoot User Guide</a>
     on Github.
   </p>
   <h2 id="privacy-policy">Privacy Policy</h2>

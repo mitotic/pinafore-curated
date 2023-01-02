@@ -2,7 +2,7 @@
 
 R. Saravanan ([@RSarava@fediscience.org](https://fediscience.org/@RSarava)), 30 Dec 2022
 
-*The code implementing this protocol can be found in primarily in these two files on Github: [curationStats.js](https://github.com/mitotic/pinafore-mahoot/blob/main/src/routes/_curation/curationStats.js), [curationFilter.js](https://github.com/mitotic/pinafore-mahoot/blob/main/src/routes/_curation/curationFilter.js)*
+*The code implementing this protocol can be found in primarily in these two files on Github: [curationStats.js](https://github.com/mitotic/pinafore-mahoot/blob/master/src/routes/_curation/curationStats.js), [curationFilter.js](https://github.com/mitotic/pinafore-mahoot/blob/master/src/routes/_curation/curationFilter.js)*
 
 The Mahoot protocol probabilistically selects a subset of posts from an user's followees to display in the timeline. To do that, Mahoot saves metadata for posts over an averaging period (default: 30 days) to compute the posting statistics for each followee. The user specifies the average number of total posts that they wish to view per day, V. We need to compute the *default Mahoot number* M<sub>def</sub>, which is the maximum number of views allowed per followee.
 
@@ -16,13 +16,13 @@ For followees who post less than their M<sub>user</sub> value, the probability o
 
 ## Post prioritization
 
-Posts can be [prioritized](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#prioritized-posts) so that "more important" posts are more likely to be displayed. If the number of (daily) prioritized posts by a user is Q<sub>user</sub>:
+Posts can be [prioritized](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#prioritized-posts) so that "more important" posts are more likely to be displayed. If the number of (daily) prioritized posts by a user is Q<sub>user</sub>:
 
 - if Q<sub>user</sub> &lt; M<sub>user</sub> then all their prioritized posts are displayed and the remaining (unprioritized) posts are displayed with probability (M<sub>user</sub> - Q<sub>user</sub>) / (P<sub>user</sub> - Q<sub>user</sub>)
 
 - if Q<sub>user</sub> &ge; M<sub>user</sub>, then only the prioritized posts are displayed with probability M<sub>user</sub> / Q<sub>user</sub>
 
-Mahoot extends this approach further to implement three levels of prioritization, with [periodic posts](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#periodic-posts-message-of-the-dayweekmonth) getting the highest priority.
+Mahoot extends this approach further to implement three levels of prioritization, with [periodic posts](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#periodic-posts-message-of-the-dayweekmonth) getting the highest priority.
 
 ## Post display consistency
 

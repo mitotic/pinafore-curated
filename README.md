@@ -2,7 +2,7 @@
 
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/main/docs/images/MahootLogo1.png"
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootLogo1.png"
      alt="Mahoot Logo">
 </p>
 
@@ -17,7 +17,7 @@
 - [Running it yourself](#running-it-yourself)
 
 
-Mahoot is a working *proof-of-concept* software that implements a [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootProtocol.md) for the decentralized microblogging network [Mastodon](https://joinmastodon.org). It provides fine-grained control on how you consume Mastodon content. The Mahoot protocol is implemented as modifications to [Pinafore](https://github.com/nolanlawson/pinafore), an open-source web client for Mastodon.
+Mahoot is a working *proof-of-concept* software that implements a [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md) for the decentralized microblogging network [Mastodon](https://joinmastodon.org). It provides fine-grained control on how you consume Mastodon content. The Mahoot protocol is implemented as modifications to [Pinafore](https://github.com/nolanlawson/pinafore), an open-source web client for Mastodon.
 
 Normally, social media platforms have algorithms that are optimized to benefit the company that owns them — the more time people spend on the platform, the more money a commercial platform makes. This isn't necessarily optimal for you, as it may not be the most productive use of your time. The non-commercial Mastodon comes with no default algorithm to curate the feed, which sounds good in principle but has its own downsides. A "firehose" approach does not scale well when you start to follow lots of people (or topics).
 
@@ -27,7 +27,7 @@ When you use Mahoot, you start by specifying how many posts (or "toots") you wis
 
 A basic premise of Mahoot is that if you follow someone, you wish to see at least some of the content they post. We'd like to listen to different voices in the media, but commercial algorithms may promote a louder voice more than a softer voice. Posts by "less popular" users may never be seen even by people who follow them. This often discourages such users from posting at all.
 
-By default, Mahoot will guarantee each of your followees a certain number of views (or impressions) per day, known as the *Mahoot Number*. The default Mahoot Number will be typically larger than the number of desired daily views divided by the number of followees, because not all your followees will post that frequently. Say you follow 150 people and wish to view 300 posts per day, the default Mahoot Number may be 7, rather than 2. (See the [protocol description](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootProtocol.md) for more detail.)
+By default, Mahoot will guarantee each of your followees a certain number of views (or impressions) per day, known as the *Mahoot Number*. The default Mahoot Number will be typically larger than the number of desired daily views divided by the number of followees, because not all your followees will post that frequently. Say you follow 150 people and wish to view 300 posts per day, the default Mahoot Number may be 7, rather than 2. (See the [protocol description](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md) for more detail.)
 
 Relying on natural (rather than artificial) intelligence, Mahoot allows you to easily *amp up* (or *amp down*) the Mahoot Number of any followee, to allow more or fewer views per day. You can use this feature to ensure that you always see someone's posts. You can also use it to reduce views of those who post interesting stuff, but too much of it every day. Typically, you will need to adjust the Mahoot number only for a fraction of your followees to take control of your feed. Doing that can free up view time that you can use to follow more people and explore different content.
 
@@ -43,7 +43,7 @@ Mahoot will also implement a feature where you can curate some posts into digest
 You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a browser on a computer or a smart phone (there is currently no phone app available). Simply log into a Mastodon instance and start browsing. You can go to the *Settings > Mahoot* menu to see the configuration options. The most important setting is *Average views per day* (see below), which statistically limits your viewing.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/main/docs/images/SettingsBasic.png"
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/SettingsBasic.png"
      alt="Curation settings page">
 <br>
 <em>Curation settings page</em>
@@ -54,7 +54,7 @@ When you start using Mahoot, it will begin to analyze your feed and compute the 
 The posting statistics for all your followees are displayed at the bottom of the *Settings > Curation* page, sorted in descending order of posts per day (as shown in the example below). It may take a few minutes for the statistics to appear initially. You can *amp up* (or *amp down*) a followee by clicking on the Faucet icon on the left. You can also directly amp up/down any followee by clicking the Faucet icon that appears at the bottom of every post you read in your timeline.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/main/docs/images/MahootStatistics1.png"
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootStatistics1.png"
      alt="Mahoot statistics at bottom of Curation page">
 <br>
 <em>Mahoot statistics at the bottom of the Settings/Curation page. The number of posts (per day) made by each followee, the percentage of those posts displayed in your feed, and the followee amp factor are shown. (User names have been anonymized.)</em>
@@ -63,7 +63,7 @@ The posting statistics for all your followees are displayed at the bottom of the
 
 Remember that Mahoot is alpha quality software that is being actively developed and may occasionally break. However, that won't break anything else because Mahoot is a standalone Mastodon web client that stores all its data just in your web browser. You can continue to access Mastodon using any other web client or phone app with no interference from Mahoot. You may also choose to switch anytime to the (uncurated) stable version of Pinafore at [Pinafore.social](https://Pinafore.social).
 
-For more detailed information on using Mahoot, see the [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md).
+For more detailed information on using Mahoot, see the [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md).
 
 For basic information on using Mahoot as a Mastodon client, see the
 [Pinafore user guide](https://github.com/nolanlawson/pinafore/blob/master/docs/User-Guide.md). See the [admin guide](https://github.com/nolanlawson/pinafore/blob/master/docs/Admin-Guide.md) if Pinafore cannot connect to your instance. (*Note: Currently Mahoot is only implemented for a single Mastodon instance; it will not work with multiple instances like standard Pinafore.*)
@@ -75,7 +75,7 @@ The name is a combination of Mahout, meaning an elephant trainer, and Toot, as M
 ## Caveat
 
 
-Pinafore+Mahoot is a "proof of concept" software that works but may fail on corner/edge cases. The goal is not to have everyone switch to using Pinafore+Mahoot, but to demonstrate that the [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootProtocol.md) is useful. This may inspire other Mastodon clients to also implement this protocol.
+Pinafore+Mahoot is a "proof of concept" software that works but may fail on corner/edge cases. The goal is not to have everyone switch to using Pinafore+Mahoot, but to demonstrate that the [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md) is useful. This may inspire other Mastodon clients to also implement this protocol.
 
 
 ## Authors

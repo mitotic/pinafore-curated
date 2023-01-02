@@ -2,7 +2,7 @@
   <h1>{intl.curationSettings}</h1>
 
   <form on:submit='onSubmitInstance(event)' class="ui-settings">
-    <h2>Basic <a href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#basic-settings">(?)</a> </h2>
+    <h2>Basic <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#basic-settings">(?)</a> </h2>
     <label for="curationViewsPerDay">Average views per day:</label>
       <input type="text" inputmode="numeric" autocapitalize="none" spellcheck="false" id="curationViewsPerDay"
              bind:value='$curationViewsPerDay' placeholder="count of views"
@@ -24,7 +24,7 @@
              bind:checked="$curationDisabled">
     </label>
     <hr>
-    <h2>Advanced <a href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#advanced-settings">(?)</a></h2>
+    <h2>Advanced <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#advanced-settings">(?)</a></h2>
     <label class="setting-group">
       Display timestamp/counter (hh:mm#nnn) for feed:
       <input type="checkbox" id="curationShowTime"
@@ -46,7 +46,7 @@
              bind:checked="$curationHideSelfReplies">
     </label>
     <hr>
-    <h2>Experimental <a href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#experimental-settings">(?)</a></h2>
+    <h2>Experimental <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#experimental-settings">(?)</a></h2>
     <label class="setting-group">
       Show reply context:
       <input type="checkbox" id="curationShowReplyContext"
@@ -96,7 +96,7 @@
        Erase curation data
     </button>
     <hr>
-    <h2>Statistics <a href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md#posting-statistics">(?)</a></h2>
+    <h2>Statistics <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#posting-statistics">(?)</a></h2>
     {#if updatingBuffer}<em>{updatingBuffer}</em><br>{/if}
     <em>Updated: {$curationFilterTime ? new Date($curationFilterTime).toLocaleString() : '...'}
     {Intl.DateTimeFormat().resolvedOptions().timeZone}</em><br>
