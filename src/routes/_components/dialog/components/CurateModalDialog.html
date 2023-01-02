@@ -1,0 +1,47 @@
+<ModalDialog
+  {id}
+  {label}
+  {title}
+  shrinkWidthToFit={true}
+  background="var(--main-bg)"
+>
+  <GenericDialogList selectable={false} {items} on:click="onClick(event)"/>
+</ModalDialog>
+<script>
+import ModalDialog from './ModalDialog.html'
+import { store } from '../../../_store/store.js'
+import GenericDialogList from './GenericDialogList.html'
+import { show } from '../helpers/showDialog.js'
+import { close } from '../helpers/closeDialog.js'
+import { oncreate } from '../helpers/onCreateDialog.js'
+
+export default {
+  oncreate,
+  data: () => ({
+    supportsWebShare: process.browser && typeof navigator.share === 'function'
+  }),
+  computed: {
+    message: ({ curateInfo }) => curateInfo.message,
+    items: ({
+      message
+    }) => ([
+      {
+        key: 'user',
+        label: message,
+        icon: ''
+      }
+    ].filter(Boolean))
+  },
+  components: {
+    ModalDialog,
+    GenericDialogList
+  },
+  store: () => store,
+  methods: {
+    show,
+    close,
+    onClick (item) {
+    }
+  }
+}
+</script>

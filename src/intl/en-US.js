@@ -1,30 +1,43 @@
 export default {
   // Home page, basic <title> and <description>
-  appName: 'Pinafore',
-  appDescription: 'An alternative web client for Mastodon, focused on speed and simplicity.',
+  appName: 'Pinafore+Mahoot',
+  appDescription: 'An alternative web client for Mastodon with curation features.',
   homeDescription: `
     <p>
-      Pinafore is a web client for
-      <a rel="noopener" target="_blank" href="https://joinmastodon.org">Mastodon</a>,
-      designed for speed and simplicity.
-    </p>
-    <p>
-      Read the
+      Mahoot is a working <em>proof-of-concept</em> software that implements a curation protocol for the decentralized microblogging network
+      <a rel="noopener" target="_blank" href="https://joinmastodon.org">Mastodon</a>. It provides fine-grained control on how you consume Mastodon content.
+    </p> <p>
+      This is a stand-alone web client and will not interfere with any other clients that you use to access Mastodon. The curation protocol
+      is implemented as modifications to <a rel="noopener" target="_blank" href="https://github.com/nolanlawson/pinafore">Pinafore</a>,
+      an alternative web client for Mastodon.
+    </p> <p>
+    For more information on using Mahoot, see the
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/README.md">README</a>
+    file or the
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md">Mahoot User Guide</a>
+    on Github.
+    </p> <p>
+    For more information on Pinafore, see its
       <a rel="noopener" target="_blank"
-         href="https://nolanlawson.com/2018/04/09/introducing-pinafore-for-mastodon/">introductory blog post</a>,
-      or get started by logging in to an instance:
+         href="https://nolanlawson.com/2018/04/09/introducing-pinafore-for-mastodon/">introductory blog post</a>.
+    </p> <p>
+      To try out Pinafore+Mahoot, log in to your Mastodon instance:
     </p>`,
   logIn: 'Log in',
   footer: `
     <p>
-      Pinafore is
-      <a rel="noopener" target="_blank" href="https://github.com/nolanlawson/pinafore">open-source software</a>
-      created by
+      <a rel="noopener" target="_blank" href="https://github.com/nolanlawson/pinafore">Pinafore</a>
+      is open-source software created by
       <a rel="noopener" target="_blank" href="https://nolanlawson.com">Nolan Lawson</a>
       and distributed under the
       <a rel="noopener" target="_blank"
          href="https://github.com/nolanlawson/pinafore/blob/master/LICENSE">AGPL License</a>.
-      Here is the <a href="/settings/about#privacy-policy" rel="prefetch">privacy policy</a>.
+         
+      The Mahoot <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot">modifications</a>
+      to Pinafore were added by
+      <a rel="noopener" target="_blank" href="https://r.saravanan.us">R. Saravanan</a>,
+      <a rel="noopener" target="_blank" href="https://fediscience.org/@RSarava">@RSarava@Fediscience.org</a>.
+      Here is the <a href="/settings/about-curation#privacy-policy" rel="prefetch">privacy policy</a>.
     </p>
   `,
   // Manifest
@@ -325,7 +338,7 @@ export default {
   fields: 'Fields',
   accountHasMoved: '{account} has moved:',
   profilePageForAccount: 'Profile page for {account}',
-  // About page
+  // About pages
   about: 'About',
   aboutApp: 'About Pinafore',
   aboutAppDescription: `
@@ -340,19 +353,6 @@ export default {
        href="https://github.com/nolanlawson/pinafore/blob/master/LICENSE">GNU Affero General Public License</a>.
   </p>
 
-  <h2 id="privacy-policy">Privacy Policy</h2>
-
-  <p>
-    Pinafore does not store any personal information on its servers,
-    including but not limited to names, email addresses,
-    IP addresses, posts, and photos.
-  </p>
-
-  <p>
-    Pinafore is a static site. All data is stored locally in your browser and shared with the fediverse
-    instance(s) you connect to.
-  </p>
-
   <h2>Credits</h2>
 
   <p>
@@ -363,8 +363,48 @@ export default {
     Logo thanks to "sailboat" by Gregor Cresnar from
     <a rel="noopener" target="_blank" href="https://thenounproject.com/">the Noun Project</a>.
   </p>`,
+  aboutCuration: 'About Mahoot',
+  aboutCurationDescription: `
+  <p>
+    Mahoot is an experimental curation protocol implemented within the
+    <a rel="noopener" target="_blank"
+       href="https://github.com/nolanlawson/pinafore">Pinafore</a>
+    client. It provides fine-grained control on how you consume Mastodon content. It is a
+    <a rel="noopener" target="_blank"
+       href="https://github.com/mitotic/pinafore-mahoot">set of modifications</a>
+    to Pinafore made by
+   <a rel="noopener" target="_blank" href="https://r.saravanan.us">R. Saravanan</a>
+   (<a rel="noopener" target="_blank" href="https://fediscience.org/@RSarava">@RSarava@Fediscience.org</a>)
+    </p> <p>
+    For more information on using Mahoot, see the
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/README.md">README</a>
+    file or the
+    <a rel="noopener" target="_blank" href="https://github.com/mitotic/pinafore-mahoot/blob/main/docs/MahootUserGuide.md">Mahoot User Guide</a>
+    on Github.
+  </p>
+  <h2 id="privacy-policy">Privacy Policy</h2>
+
+  <p>
+    Mahoot does not store any personal information on on the server-side,
+    including but not limited to names, email addresses,
+    IP addresses, posts, and photos.
+  </p>
+
+  <p>
+    Mahoot creates a static site. All data is stored locally in your browser and shared with the fediverse
+    instance you connect to.
+  </p>
+
+  <h2>Credits</h2>
+
+  <p>
+   HMAC.js implementation from <a rel="noopener" target="_blank" href="https://gist.github.com/stevendesu/2d52f7b5e1f1184af3b667c0b5e054b8">Steven Barnett</a>
+  <p>
+  </p>`,
   // Settings
   settings: 'Settings',
+  curation: 'Mahoot',
+  curationSettings: 'Mahoot settings',
   general: 'General',
   generalSettings: 'General settings',
   showSensitive: 'Show sensitive media by default',

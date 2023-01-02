@@ -3,6 +3,11 @@ import { deleteStatus } from '../deleteStatuses.js'
 import { addStatusOrNotification } from '../addStatusOrNotification.js'
 import { emit } from '../../_utils/eventBus.js'
 
+import { store } from '../../_store/store.js'
+import { curateStatuses } from '../../_curation/curationTimeline.js'
+
+const { curationDisabled } = store.get()
+
 const KNOWN_EVENTS = ['update', 'delete', 'notification', 'conversation', 'filters_changed']
 
 export function processMessage (instanceName, timelineName, message) {
@@ -21,7 +26,13 @@ export function processMessage (instanceName, timelineName, message) {
       deleteStatus(instanceName, payload)
       break
     case 'update':
-      addStatusOrNotification(instanceName, timelineName, payload)
+      if (!curationDisabled && timelineName === 'home') {
+        const curated = curateStatuses(instanceName, true, [payload])
+        payload = curated.length ? curated[0] : null
+      }
+      if (payload) {
+        addStatusOrNotification(instanceName, timelineName, payload)
+      }
       break
     case 'notification':
       addStatusOrNotification(instanceName, 'notifications', payload)

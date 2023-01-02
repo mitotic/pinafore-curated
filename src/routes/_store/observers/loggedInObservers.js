@@ -11,6 +11,7 @@ import { showComposeDialogObservers } from './showComposeDialogObservers.js'
 import { badgeObservers } from './badgeObservers.js'
 import { countryFlagEmojiPolyfill } from './countryFlagEmojiPolyfill.js'
 import { centerNavObservers } from './centerNavObservers.js'
+import { curationObservers } from './curationObservers.js'
 
 // These observers can be lazy-loaded when the user is actually logged in.
 // Prevents circular dependencies and reduces the size of main.js
@@ -26,6 +27,7 @@ export function loggedInObservers () {
   customEmojiObservers()
   showComposeDialogObservers()
   badgeObservers()
+  curationObservers()
   cleanup()
   countryFlagEmojiPolyfill()
 }

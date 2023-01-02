@@ -113,6 +113,10 @@
   import { POLL_EXPIRY_DEFAULT } from '../../_static/polls.js'
   import { scheduleIdleTask } from '../../_utils/scheduleIdleTask.js'
 
+  import { getHashtags } from '../../_curation/curationGeneral.js'
+  import { MOTX_TAGS, date2hhmmISO, equalForTimezone } from '../../_curation/curationStore.js'
+  import { importShowCurateModalDialog } from '../dialog/asyncDialogs/importShowCurateModalDialog.js'
+
   export default {
     oncreate () {
       const { realm, replySpoiler, replyVisibility } = this.get()
@@ -192,12 +196,45 @@
     },
     methods: {
       async doPostStatus () {
-        const { aboutToPostStatus } = this.get()
-        const { postingStatus } = this.store.get()
+        const { text, aboutToPostStatus } = this.get()
+        const { curationDisabled, curationLastMotxDates, curationTimezone, postingStatus } = this.store.get()
         if (aboutToPostStatus || postingStatus) { // do nothing if the user rapidly taps the Ctrl-Enter key
           console.log('ignored post command', { aboutToPostStatus, postingStatus })
           return
         }
+
+        if (!curationDisabled) {
+          const curDateStr = date2hhmmISO()
+          const curDate = new Date(curDateStr)
+
+          const tags = getHashtags(text, true)
+
+          console.log('doPostStatus:', curDateStr, curationLastMotxDates, tags, text)
+
+          const timezone = curationTimezone || 'UTC'
+          let errMsg = ''
+          let update = false
+
+          for (const tag of MOTX_TAGS) {
+            if (tags.includes(tag)) {
+              if (curationLastMotxDates[tag] && equalForTimezone(tag, curationLastMotxDates[tag], curDate, timezone)) {
+                errMsg = 'Error: Already posted #' + tag.toUpperCase() + ' at ' + (new Date(curationLastMotxDates[tag]).toLocaleString())
+              } else {
+                curationLastMotxDates[tag] = curDateStr
+                update = true
+              }
+            }
+          }
+
+          if (errMsg) {
+            const showCurateModalDialog = await importShowCurateModalDialog()
+            showCurateModalDialog({ message: errMsg })
+            return
+          } else if (update) {
+            this.store.set({ curationLastMotxDates })
+          }
+        }
+
         // The reason we add a scheduleIdleTask delay here is because we also use scheduleIdleTask
         // in ComposeInput.html to debounce the input events. If the user is very fast at typing
         // at their keyboard and quickly presses Ctrl+Enter or the "Toot" button then there could

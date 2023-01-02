@@ -1,0 +1,26 @@
+<SettingsLayout page='settings/about-curation' label="{intl.aboutCuration}">
+  <div>
+    <h1>{intl.aboutCuration}</h1>
+
+    <h2>Pinafore {version}/Mahoot {mahootVersion}</h2>
+
+    {@html intl.aboutCurationDescription}
+  </div>
+</SettingsLayout>
+<script>
+  import SettingsLayout from '../../_components/settings/SettingsLayout.html'
+  import { MAHOOT_CODE_VERSION } from '../../_curation/curationGeneral.js'
+
+  const version = process.env.PINAFORE_VERSION
+  const mahootVersion = MAHOOT_CODE_VERSION
+
+  export default {
+    components: {
+      SettingsLayout
+    },
+    data: () => ({
+      version,
+      mahootVersion
+    })
+  }
+</script>

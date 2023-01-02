@@ -8,6 +8,7 @@
         aria-label={createdAtLabel}>
     {shortInlineFormattedDate}
   </time>
+  {postTime}
 </a>
 <style>
   .status-relative-date {
@@ -32,9 +33,25 @@
 </style>
 <script>
   import { formatIntl } from '../../_utils/formatIntl.js'
+  import { CurationCounter } from '../../_curation/curationBuffer.js'
 
   export default {
     computed: {
+      postTime: ({ $curationDisabled, $curationShowTime, status }) => {
+        let timeStr = ''
+        if (!$curationDisabled && $curationShowTime && status.created_at) {
+          timeStr = new Date(status.created_at).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5)
+          if (timeStr.startsWith('24:')) timeStr = '00:' + timeStr.substring(3)
+          if (CurationCounter[status.id]) {
+            timeStr += '#' + CurationCounter[status.id]
+            if (status.curation_high_boost && !timeStr.endsWith('HB')) {
+              // As reblog count updates over time, previously dropped posts may be "undropped" by high boost amplifaction
+              timeStr += 'HB'
+            }
+          }
+        }
+        return timeStr
+      },
       elementId: ({ uuid }) => `status-relative-date-${uuid}`,
       tabindex: ({ $disableTapOnStatus }) => (
         // If you can't tap on the entire status, then you need some way to click on it. Otherwise it's

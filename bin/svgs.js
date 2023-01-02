@@ -58,5 +58,10 @@ export default [
   { id: 'fa-crosshairs', src: 'src/thirdparty/font-awesome-svg-png/white/svg/crosshairs.svg' },
   { id: 'fa-magic', src: 'src/thirdparty/font-awesome-svg-png/white/svg/magic.svg' },
   { id: 'fa-hashtag', src: 'src/thirdparty/font-awesome-svg-png/white/svg/hashtag.svg' },
-  { id: 'fa-bookmark', src: 'src/thirdparty/font-awesome-svg-png/white/svg/bookmark.svg' }
+  { id: 'fa-bookmark', src: 'src/thirdparty/font-awesome-svg-png/white/svg/bookmark.svg' },
+  { id: 'fa-faucet', src: 'src/thirdparty/font-awesome-svg-png/white/svg/faucet-drip-solid.svg' },
+  { id: 'fa-angles-up', src: 'src/thirdparty/font-awesome-svg-png/white/svg/angles-up.svg' },
+  { id: 'fa-angles-down', src: 'src/thirdparty/font-awesome-svg-png/white/svg/angles-down.svg' },
+  { id: 'fa-trash-can', src: 'src/thirdparty/font-awesome-svg-png/white/svg/trash-can.svg' }
+
 ]

@@ -43,8 +43,28 @@ const persistedState = {
   reduceMotion:
     !process.browser ||
     matchMedia('(prefers-reduced-motion: reduce)').matches,
-  underlineLinks: false
+  underlineLinks: false,
+  curationViewsPerDay: 300,
+  curationDaysOfData: 30,
+  curationEditionTime: '', // hh:mm value (local time) TODO: up to 4 editions per day
+  curationSecretKey: 'change_it', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
+  curationDisabled: false,
+  curationShowTime: false,
+  curationShowAllStatus: false,
+  curationShowReplyContext: false,
+  curationAmplifyHighBoosts: false,
+  curationHideDuplicateBoosts: false,
+  curationHideSelfReplies: false,
+  curationAnonymize: false,
+  curationDevMode: false,
+  curationDigestUsers: '',
+  curationDataVersion: '',
+  curationTimezone: '', // Continent/City (TODO)
+  curationLastMotxDates: {}, // {motd_date, motw_day, motm_month}
+  curationLastSaveInterval: '' // Start time (yyyy-mm-ddThh:mmZ) for start of last status summary save interval
 }
+
+export const CURATION_SETTINGS = ['curationViewsPerDay', 'curationDaysOfData', 'curationEditionTime', 'curationSecretKey', 'curationDisabled', 'curationLastMotxDates', 'curationLastSaveInterval'].reduce((obj, key) => ({ ...obj, [key]: persistedState[key] }), {})
 
 const nonPersistedState = {
   customEmoji: {},
@@ -66,7 +86,11 @@ const nonPersistedState = {
   sensitivesShown: {},
   spoilersShown: {},
   statusModifications: {},
-  verifyCredentials: {}
+  verifyCredentials: {},
+  curationFilterTime: '',
+  curationUpdatingRecent: '',
+  curationUpdatingBuffer: '',
+  curationUpdatingMessage: ''
 }
 
 const state = Object.assign({}, persistedState, nonPersistedState)

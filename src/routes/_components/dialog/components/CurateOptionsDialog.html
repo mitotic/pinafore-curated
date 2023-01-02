@@ -1,0 +1,186 @@
+<ModalDialog
+  {id}
+  {label}
+  {title}
+  shrinkWidthToFit={true}
+  background="var(--main-bg)"
+>
+  <GenericDialogList selectable={false} {items} on:click="onClick(event)"/>
+</ModalDialog>
+<script>
+import ModalDialog from './ModalDialog.html'
+import { store } from '../../../_store/store.js'
+import GenericDialogList from './GenericDialogList.html'
+import { show } from '../helpers/showDialog.js'
+import { close } from '../helpers/closeDialog.js'
+import { oncreate } from '../helpers/onCreateDialog.js'
+import { getUserFollow, setUserFollow, getCurrentFollows, getFilter, getStatus } from '../../../_curation/curationCache.js'
+import { MAX_AMP_FACTOR, MIN_AMP_FACTOR, USER_TOPICS_KEY, USER_TIMEZONE_KEY, roundCount, roundPercent, getMyUsername, getDigestUsers, curationConsole } from '../../../_curation/curationGeneral.js'
+import { computePostStats } from '../../../_curation/curationStats.js'
+
+export default {
+  oncreate,
+  data: () => ({
+    supportsWebShare: process.browser && typeof navigator.share === 'function'
+  }),
+  computed: {
+    username: ({ curateInfo }) => curateInfo.username,
+    droppedLabel: ({ curateInfo }) => curateInfo.curation_dropped ? 'Dropped: ' + curateInfo.curation_dropped : '',
+    followInfo: ({ $curationFilterTime, username }) => getCurrentFollows() ? (getCurrentFollows()[username] || null) : {},
+    userProb: ({ $curationFilterTime, username }) => getFilter() ? getFilter()[1][username] : null,
+    userStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
+    isTracked: ({ userProb }) => {
+      return userProb
+    },
+    isFollowee: ({ followInfo, userProb }) => {
+      return followInfo && userProb
+    },
+    isDevMode: ({ $curationDevMode }) => {
+      return $curationDevMode
+    },
+    userLabel: ({ $curationAnonymize, username, userProb }) => ((username === getMyUsername()) ? 'Self: ' : 'Followee: ') + ($curationAnonymize ? userProb.altname : '@' + username),
+    postLabel: ({ $curationViewsPerDay, isTracked, userProb, userStats }) => isTracked ? `Posts/day: ${roundCount(userProb.total_daily)} (#${roundCount(userProb.motx_daily + userProb.priority_daily)}+${roundCount(userProb.post_daily + userProb.boost_daily)})` : '',
+    probLabel: ({ isTracked, userProb }) => isTracked
+      ? `View Probability: ${roundPercent(userProb.net_prob)}
+  (#${roundPercent(userProb.priority_prob)}, ${roundPercent(userProb.post_prob)})`
+      : '',
+    engagedLabel: ({ isFollowee, userProb }) => isFollowee ? `Dev: Engaged posts: ${roundCount(userProb.engaged_daily)}` : '',
+    ampValue: ({ followInfo }) => followInfo ? followInfo.amp_factor : '',
+    mahootLabel: ({ isFollowee, ampValue, userStats }) => isFollowee ? 'User Mahoot number: ' + (ampValue * userStats.mahoot_number).toFixed(2) : '',
+    digestLabel: ({ isFollowee, username }) => isFollowee && getDigestUsers()[username] ? 'Dev: Digest: ' + getDigestUsers()[username] : '',
+    ampLabel: ({ isFollowee, ampValue }) => isFollowee ? 'Amp Factor: ' + ampValue : '',
+    timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
+    topicsLabel: ({ userProb }) => 'Dev: Topics: '+userProb[USER_TOPICS_KEY],
+    items: ({
+      isTracked, isFollowee, isDevMode, droppedLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
+    }) => ([
+      droppedLabel && {
+        key: 'dropped',
+        label: droppedLabel,
+        icon: '#fa-trash-can'
+      },
+      {
+        key: 'user',
+        label: userLabel,
+        icon: ''
+      },
+      isTracked && {
+        key: 'post',
+        label: postLabel,
+        icon: ''
+      },
+      isTracked && {
+        key: 'prob',
+        label: probLabel,
+        icon: ''
+      },
+      isFollowee && {
+        key: 'mahoot',
+        label: mahootLabel,
+        icon: ''
+      },
+      isFollowee && {
+        key: 'amp',
+        label: ampLabel,
+        icon: ''
+      },
+      isFollowee && {
+        key: 'ampup',
+        label: 'Amp-up',
+        icon: '#fa-angles-up'
+      },
+      isFollowee && {
+        key: 'ampdown',
+        label: 'Amp-down',
+        icon: '#fa-angles-down'
+      },
+      isFollowee && {
+        key: 'timezone',
+        label: timezone,
+        icon: ''
+      },
+      isDevMode && digestLabel && {
+        key: 'digest',
+        label: digestLabel,
+        icon: ''
+      },
+      isDevMode && isFollowee && { // TODO; Also give credit to booster, if reblog, but status summary may not be buffered
+        key: 'engaged',
+        label: engagedLabel,
+        icon: ''
+      },
+      isDevMode && {
+        key: 'topics',
+        label: topicsLabel,
+        icon: ''
+      },
+      isDevMode && {
+        key: 'devuserstatus',
+        label: 'DevConsole: Inspect user/status',
+        icon: ''
+      },
+      isDevMode && {
+        key: 'devstats',
+        label: 'DevConsole: Inspect statistics',
+        icon: ''
+      }
+    ].filter(Boolean))
+  },
+  components: {
+    ModalDialog,
+    GenericDialogList
+  },
+  store: () => store,
+  methods: {
+    show,
+    close,
+    onClick (item) {
+      switch (item.key) {
+        case 'ampup':
+          return this.onAmpUp()
+        case 'ampdown':
+          return this.onAmpDown()
+        case 'devuserstatus':
+          return this.onDevUserStatus()
+        case 'devstats':
+          return this.onDevStats()
+      }
+    },
+    async onAmpUp () {
+      const { username } = this.get()
+      const value = getUserFollow(username)
+      if (value.amp_factor < MAX_AMP_FACTOR) {
+        value.amp_factor = 2 * value.amp_factor
+        setUserFollow(username, value)
+        computePostStats()
+      }
+      // this.close()
+    },
+    async onAmpDown () {
+      const { username } = this.get()
+      const value = getUserFollow(username)
+      if (value.amp_factor > MIN_AMP_FACTOR) {
+        value.amp_factor = value.amp_factor / 2
+        setUserFollow(username, value)
+        computePostStats()
+      }
+      // this.close()
+    },
+    async onDevUserStatus () {
+      const { username, followInfo, userStats, userProb, curateInfo } = this.get()
+      curationConsole('DevUserStatus1', username, '\nFOLLOW', followInfo, 'GLOBALSTATS', userStats, 'USERSTATS', userProb)
+
+      if (curateInfo.status) {
+        const summary = await getStatus(curateInfo.status.id)
+        curationConsole('DevUserStatus2', username, '\nSUMMARY', summary, 'STATUS', curateInfo.status)
+      }
+    },
+    async onDevStats () {
+      computePostStats()
+      const filter = getFilter()
+      const [userStats] = filter
+      curationConsole('DevStats \nGLOBALSTATS', userStats)
+    }
+  }
+}
+</script>

@@ -18,6 +18,9 @@ export const DB_VERSION_INITIAL = 9
 export const DB_VERSION_SEARCH_ACCOUNTS = 10
 export const DB_VERSION_SNOWFLAKE_IDS = 12 // 11 skipped because of mistake deployed to dev.pinafore.social
 
+export const CURATION_STATUSBUFFER_STORE = 'curation-statusbuffer-v4'
+export const CURATION_STATUSEDITION_STORE = 'curation-statusedition-v4'
+
 // Using an object for these so that unit tests can change them
 export const DB_VERSION_CURRENT = { version: 12 }
 export const CURRENT_TIME = { now: () => Date.now() }

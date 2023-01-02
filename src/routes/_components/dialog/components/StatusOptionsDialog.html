@@ -28,6 +28,8 @@ import { reportStatusOrAccount } from '../../../_actions/report.js'
 import { formatIntl } from '../../../_utils/formatIntl.js'
 import { setAccountNotified } from '../../../_actions/setAccountNotified.js'
 
+import { updateStatusSummary } from '../../../_curation/curationGeneral.js'
+
 export default {
   oncreate,
   data: () => ({
@@ -260,7 +262,9 @@ export default {
     async onBookmark () {
       const { status } = this.get()
       this.close()
-      await setStatusBookmarkedOrUnbookmarked(status.id, !status.bookmarked)
+      const newBookmarkedValue = !status.bookmarked
+      await setStatusBookmarkedOrUnbookmarked(status.id, newBookmarkedValue)
+      updateStatusSummary(status.id, 'bookmarked', newBookmarkedValue)
     },
     async onNotifyClicked () {
       const { accountId } = this.get()

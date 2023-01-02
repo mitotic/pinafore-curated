@@ -9,15 +9,26 @@ import {
   STATUSES_STORE,
   THREADS_STORE,
   TIMESTAMP
+  , CURATION_STATUSBUFFER_STORE,
+  CURATION_STATUSEDITION_STORE
 } from './constants.js'
+
 import { debounce } from '../_thirdparty/lodash/timers.js'
 import { mark, stop } from '../_utils/marks.js'
 import { deleteAll } from './utils.js'
 import { createPinnedStatusKeyRange, createThreadKeyRange } from './keys.js'
 import { getKnownInstances } from './knownInstances.js'
 import { noop } from '../_utils/lodash-lite.js'
-import { CLEANUP_DELAY, CLEANUP_TIME_AGO } from '../_static/database.js'
+import {
+  CLEANUP_DELAY,
+  CLEANUP_TIME_AGO,
+  CURATION_DELAY,
+  CURATION_STATUSBUFFER_AGO,
+  CURATION_STATUSEDITION_AGO
+} from '../_static/database.js'
 import { scheduleIdleTask } from '../_utils/scheduleIdleTask.js'
+
+import { createSnowflakeId, getSnowflakeDate } from '../_curation/curationSnowflakeId.js'
 
 const BATCH_SIZE = 20
 
@@ -134,8 +145,45 @@ export async function cleanup (instanceName) {
   stop(`cleanup:${instanceName}`)
 }
 
+async function cleanupCurationStatuses (curationStatusStore, cutoffTime) {
+  console.log('****cleanupCurationStatuses', curationStatusStore, new Date(cutoffTime))
+  batchedGetAll(
+    () => curationStatusStore.getAllKeys(IDBKeyRange.upperBound(createSnowflakeId(cutoffTime), true), BATCH_SIZE),
+    results => {
+      results.forEach(statusId => {
+        console.log('****cleanupCurationStatuses NO_DELETE_YET', getSnowflakeDate(statusId).toISOString())
+        /// curationStatusStore.delete(statusId)
+      })
+    }
+  )
+}
+
+export async function curationCleanup (instanceName) {
+  console.log('curationCleanup', instanceName)
+  mark(`curationCleanup:${instanceName}`)
+  const db = await getDatabase(instanceName)
+  const storeNames = [
+    CURATION_STATUSBUFFER_STORE,
+    CURATION_STATUSEDITION_STORE
+  ]
+  await dbPromise(db, storeNames, 'readwrite', (stores) => {
+    const [
+      curationStatusBufferStore,
+      curationStatusEditionStore
+    ] = stores
+
+    cleanupCurationStatuses(curationStatusBufferStore, Date.now() - CURATION_STATUSBUFFER_AGO)
+    cleanupCurationStatuses(curationStatusEditionStore, Date.now() - CURATION_STATUSEDITION_AGO)
+  })
+  stop(`curationCleanup:${instanceName}`)
+}
+
 function doCleanup (instanceName) {
   scheduleIdleTask(() => cleanup(instanceName))
+}
+
+function doCurationCleanup (instanceName) {
+  scheduleIdleTask(() => curationCleanup(instanceName))
 }
 
 async function scheduledCleanup () {
@@ -146,5 +194,16 @@ async function scheduledCleanup () {
   }
 }
 
+async function scheduledCurationCleanup () {
+  console.log('scheduledCurationCleanup')
+  const knownInstances = await getKnownInstances()
+  for (const instance of knownInstances) {
+    doCurationCleanup(instance)
+  }
+}
+
 // we have unit tests that test indexedDB; we don't want this thing to run forever
 export const scheduleCleanup = process.browser ? debounce(scheduledCleanup, CLEANUP_DELAY) : noop
+
+// Curation database cleanup
+export const scheduleCurationCleanup = process.browser ? debounce(scheduledCurationCleanup, CURATION_DELAY) : noop

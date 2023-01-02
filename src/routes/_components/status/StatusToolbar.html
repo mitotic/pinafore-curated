@@ -31,6 +31,12 @@
     ref:favoriteIcon
     />
   <IconButton
+    label="curation"
+    href="#fa-faucet"
+    clickListener={false}
+    elementId={curateKey}
+  />
+  <IconButton
     label="{intl.moreOptions}"
     href="#fa-ellipsis-h"
     clickListener={false}
@@ -73,7 +79,14 @@
   import { registerClickDelegates } from '../../_utils/delegate.js'
   import { setFavorited } from '../../_actions/favorite.js'
   import { setReblogged } from '../../_actions/reblog.js'
+
   import { importShowStatusOptionsDialog } from '../dialog/asyncDialogs/importShowStatusOptionsDialog.js'
+  import { importShowCurateOptionsDialog } from '../dialog/asyncDialogs/importShowCurateOptionsDialog.js'
+  import { importShowCurateModalDialog } from '../dialog/asyncDialogs/importShowCurateModalDialog.js'
+
+  import { updateStatusSummary, getMyUsername } from '../../_curation/curationGeneral.js'
+  import { getCurrentFollows } from '../../_curation/curationCache.js'
+
   import { updateProfileAndRelationship } from '../../_actions/accounts.js'
   import { FAVORITE_ANIMATION, REBLOG_ANIMATION } from '../../_static/animations.js'
   import { on } from '../../_utils/eventBus.js'
@@ -85,6 +98,7 @@
         favoriteKey,
         reblogKey,
         replyKey,
+        curateKey,
         optionsKey
       } = this.get()
       registerClickDelegates(this, {
@@ -98,6 +112,10 @@
         },
         [replyKey]: () => {
           this.reply()
+          return true
+        },
+        [curateKey]: () => {
+          this.onCurateClick()
           return true
         },
         [optionsKey]: () => {
@@ -114,9 +132,10 @@
     store: () => store,
     methods: {
       toggleFavorite (announce) {
-        const { originalStatusId, favorited } = this.get()
+        const { status, originalStatusId, favorited } = this.get()
         const newFavoritedValue = !favorited
         /* no await */ setFavorited(originalStatusId, newFavoritedValue)
+        updateStatusSummary(status.id, 'favourited', newFavoritedValue)
         if (newFavoritedValue) {
           this.refs.favoriteIcon.animate(FAVORITE_ANIMATION)
         }
@@ -125,9 +144,10 @@
         }
       },
       reblog (announce) {
-        const { originalStatusId, reblogged } = this.get()
+        const { status, originalStatusId, reblogged } = this.get()
         const newRebloggedValue = !reblogged
         /* no await */ setReblogged(originalStatusId, newRebloggedValue)
+        updateStatusSummary(status.id, 'reblogged', newRebloggedValue)
         if (newRebloggedValue) {
           this.refs.reblogIcon.animate(REBLOG_ANIMATION)
         }
@@ -143,6 +163,30 @@
           this.store.set({ repliesShown })
           this.fire('recalculateHeight')
         })
+      },
+      async onCurateClick () {
+        const { status } = this.get()
+        const { curationDisabled } = store.get()
+        if (curationDisabled) {
+          const showCurateModalDialog = await importShowCurateModalDialog()
+          showCurateModalDialog({ message: 'Curation is disabled. Enable in Settings->Curation' })
+        } else if (status.curation_edition && status.reblog) {
+          const showCurateOptionsDialog = await importShowCurateOptionsDialog()
+          showCurateOptionsDialog({
+            username: status.reblog.account.acct.toLowerCase(),
+            status: status.reblog,
+            curation_dropped: 'Edition/' + status.reblog.curation_save
+          })
+        } else {
+          const username = status.account.acct.toLowerCase()
+          if (username !== getMyUsername() && !(username in getCurrentFollows())) {
+            const showCurateModalDialog = await importShowCurateModalDialog()
+            showCurateModalDialog({ message: 'Unfollowed user ' + username })
+          } else {
+            const showCurateOptionsDialog = await importShowCurateOptionsDialog()
+            showCurateOptionsDialog({ username, status, curation_dropped: status.curation_dropped })
+          }
+        }
       },
       async onOptionsClick () {
         const { originalStatus, originalAccountId } = this.get()
@@ -213,6 +257,7 @@
       favoriteKey: ({ uuid }) => `fav-${uuid}`,
       reblogKey: ({ uuid }) => `reblog-${uuid}`,
       replyKey: ({ uuid }) => `reply-${uuid}`,
+      curateKey: ({ uuid }) => `curate-${uuid}`,
       optionsKey: ({ uuid }) => `options-${uuid}`
     }
   }

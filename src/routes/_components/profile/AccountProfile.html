@@ -3,8 +3,8 @@
   <AccountProfileMovedBanner {account} />
 {/if}
 <div class={className}
-     style="background-image: url({headerImage});"
      ref:accountProfile>
+  <img class="account-profile-image" src="{headerImage}" alt="profile header image">
   <div class="account-profile-grid-wrapper">
     <div class="account-profile-grid">
       <AccountProfileHeader {account} {relationship} {verifyCredentials} />
@@ -21,11 +21,14 @@
     position: relative;
     background-size: cover;
     background-position: center;
-    padding-top: 175px;
   }
 
   .account-profile.moved {
     filter: grayscale(0.8);
+  }
+
+  .account-profile-image {
+    max-width: 100%;
   }
 
   .account-profile.header-image-is-missing {

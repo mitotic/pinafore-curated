@@ -6,6 +6,7 @@
          aria-label={ariaLabel}
          on:recalculateHeight
          ref:article
+         style={curationDroppedStatus}
 >
   {#if showHeader}
     <StatusHeader {...params} />
@@ -75,7 +76,40 @@
     cursor: pointer;
   }
 
-  .status-article.status-in-timeline {
+  .status-article.status-curation-dropped {
+    opacity: 0.45;
+   }
+
+  .status-article.status-curation-context {
+    opacity: 0.6;
+   }
+
+  .status-article.status-curation-reply {
+    border-left: 2px solid; 
+   }
+
+  .status-article.status-demarcate-top-heavy {
+    border-top: 5px solid rgb(192,0,0);
+  }
+
+  .status-article.status-demarcate-top-lite {
+    border-top: 2px dotted rgb(192,0,0);
+  }
+
+  .status-article.status-demarcate-top {
+    border-top: 3px solid rgb(192,0,0);
+  }
+
+  .status-article.status-demarcate-bottom {
+    border-bottom: 3px solid rgb(192,0,0);
+  }
+
+  .status-article.status-demarcate-side {
+    border-left: 3px solid rgb(192,0,0); 
+    border-right: 3px solid rgb(192,0,0); 
+  }
+
+  .status-article.status-in-timeline:not(.status-demarcate-bottom) {
     border-bottom: 1px solid var(--main-border);
   }
 
@@ -139,7 +173,9 @@
   const isToolbar = node => node.classList.contains('status-toolbar')
   const isStatusArticle = node => node.classList.contains('status-article')
 
-  export default {
+  const { curationShowAllStatus } = store.get()
+
+export default {
     oncreate () {
       const { elementId, isStatusInOwnThread, showContent } = this.get()
       const { disableTapOnStatus } = this.store.get()
@@ -216,6 +252,7 @@
       }
     },
     computed: {
+      curationDroppedStatus: ({ status }) => status.curation_dropped && !curationShowAllStatus ? 'display: none;' : '',
       originalStatus: ({ status }) => status.reblog ? status.reblog : status,
       originalStatusId: ({ originalStatus }) => originalStatus.id,
       statusId: ({ status }) => status.id,
@@ -301,10 +338,18 @@
         status.reblog ||
         timelineType === 'pinned'
       ),
-      className: ({ visibility, timelineType, isStatusInOwnThread, $underlineLinks, $disableTapOnStatus }) => (classname(
+      className: ({ status, visibility, timelineType, isStatusInOwnThread, $underlineLinks, $disableTapOnStatus }) => (classname(
         'status-article',
         'shortcut-list-item',
         'focus-fix',
+        status.curation_reply && 'status-curation-reply',
+        status.curation_context && 'status-curation-context',
+        status.curation_dropped && 'status-curation-dropped',
+        status.demarcate_bottom && 'status-demarcate-bottom',
+        status.demarcate_top && 'status-demarcate-top',
+        status.demarcate_top_lite && 'status-demarcate-top-lite',
+        status.demarcate_top_heavy && 'status-demarcate-top-heavy',
+        status.demarcate_side && 'status-demarcate-side',
         timelineType !== 'direct' && visibility === 'direct' && 'status-direct',
         timelineType !== 'search' && 'status-in-timeline',
         isStatusInOwnThread && 'status-in-own-thread',
