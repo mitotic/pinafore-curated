@@ -9,25 +9,27 @@ import { date2hhmmISO } from './curationStore.js'
 import { createSnowflakeId, getSnowflakeEpoch } from './curationSnowflakeId.js'
 import { computePostStats } from './curationStats.js'
 
-import { MAHOOT_DATA_VERSION, UPDATE_DELAY_SEC, PAGED_REQUEST_DELAY_SEC, RETRY_UPDATE_SEC, nextInterval, oldestInterval, getMaxDaysOfData, summarizeStatus, bufferStatusSummarySync, getEditionTimeStrs } from './curationGeneral.js'
+import { MAHOOT_DATA_VERSION, UPDATE_DELAY_SEC, PAGED_REQUEST_DELAY_SEC, RETRY_UPDATE_SEC, STATUS_REQUEST_LIMIT, nextInterval, oldestInterval, getMaxDaysOfData, summarizeStatus, bufferStatusSummarySync, getEditionTimeStrs } from './curationGeneral.js'
 
-import { getAllStatusKeysBefore, getAllStatusKeysRange, removeStatuses, putEditionStatus, getCurrentFollows, getFilter } from './curationCache.js'
+import { getAllSummaryKeysBefore, getAllSummaryKeysRange, removeSummaries, putEditionStatus, getCurrentFollows, getFilter } from './curationCache.js'
 import { curateSingleStatus } from './curationFilter.js'
 import { refreshCurationFollows } from './curationFollows.js'
-
-const { loggedInInstances, currentInstance } = store.get()
 
 // Shown/Dropped/Saved post counters (initially 0 and reset to 1 at local midnoght)
 export let CurationCounter = {}
 
-function getHomeTimelineURL () {
-  return `${basename(currentInstance)}/api/v1/timelines/home`
+function getHomeTimelineURL (limit, minId) {
+  const { currentInstance } = store.get()
+  return `${basename(currentInstance)}/api/v1/timelines/home?limit=${limit}&min_id=${minId}`
 }
 
 let UpdateSequenceId = 0
 
 export async function updateStatusBuffer (callType) {
-  let { curationUpdatingRecent, curationUpdatingBuffer, curationLastSaveInterval, curationDevMode, curationDisabled } = store.get()
+  const { loggedInInstances, currentInstance } = store.get()
+  const { curationDevMode, curationDisabled, curationLastSaveInterval } = store.get()
+
+  let { curationUpdatingRecent, curationUpdatingBuffer } = store.get()
 
   console.log('updateStatusBuffer: CALLED', callType, curationUpdatingBuffer, curationLastSaveInterval, curationDisabled)
 
@@ -90,7 +92,7 @@ export async function updateStatusBuffer (callType) {
 
     const minId = createSnowflakeId(newIntervalStr, 0)
 
-    const url = getHomeTimelineURL() + '?limit=1&min_id=' + minId
+    const url = getHomeTimelineURL(1, minId)
     const accessToken = loggedInInstances[currentInstance].access_token
 
     console.log('updateStatusBuffer-START', sequenceInfo)
@@ -127,7 +129,7 @@ async function processPagedStatuses (sequenceInfo, processedCount, lastIntervalS
     while ((new Date(nextInterval(lastIntervalStr))).getTime() < firstAvailableTime) { lastIntervalStr = nextInterval(lastIntervalStr) }
 
     const minId = createSnowflakeId(lastIntervalStr, 0)
-    getUrl = getHomeTimelineURL() + '?limit=40&min_id=' + minId
+    getUrl = getHomeTimelineURL(STATUS_REQUEST_LIMIT, minId)
   } else {
     const linkHeader = headers.get('Link')
     const parsedLinkHeader = li.parse(linkHeader)
@@ -180,10 +182,10 @@ async function saveStatuses (lastIntervalStr, statusBlock, statuses) {
         // Cleanup old statuses and cleanup buffers
         const oldestIntervalStr = oldestInterval(lastIntervalStr)
 
-        getAllStatusKeysBefore(oldestIntervalStr).then(keys => {
+        getAllSummaryKeysBefore(oldestIntervalStr).then(keys => {
           /// console.log('saveStatuses REMOVE STATUSES', keys.length, oldestIntervalStr)
         })
-        removeStatuses(oldestIntervalStr)
+        removeSummaries(oldestIntervalStr)
 
         scheduleCurationCleanup()
       }
@@ -204,11 +206,13 @@ async function saveStatuses (lastIntervalStr, statusBlock, statuses) {
 }
 
 async function processStatusBlock (currentFollows, lastIntervalStr, statusBlock) {
+  const { currentInstance } = store.get()
+
   const editionCount = getEditionTimeStrs().length
   const currentFilter = getFilter()
   const [currentStats, currentProbs] = currentFilter || [null, null]
 
-  const oldKeys = (await getAllStatusKeysRange(lastIntervalStr, nextInterval(lastIntervalStr))) || []
+  const oldKeys = (await getAllSummaryKeysRange(lastIntervalStr, nextInterval(lastIntervalStr))) || []
 
   console.log('processStatusBlock', lastIntervalStr, statusBlock.length, oldKeys.length)
 

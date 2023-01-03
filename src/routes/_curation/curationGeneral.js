@@ -2,7 +2,7 @@ import { store } from '../_store/store.js'
 
 import { offsetDaysInDate, nextTimeInterval, hhmm2localTime } from './curationStore.js'
 
-import { USER_FOLLOW_UPDATE, getStatus, setStatus, getStatusKey, newUserFollow } from './curationCache.js'
+import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
 export const MAHOOT_CODE_VERSION = '0.3.9'
 
@@ -30,6 +30,11 @@ export const MIN_AMP_FACTOR = 1.0 / 64
 
 // If user Mahoot number is less than this value, #MOTD will be treated as just a priority tag
 export const MOTD_MIN_MAHOOT_NUMBER = 1.0
+
+export const STATUS_REQUEST_LIMIT = 40
+
+// "Absolute maximum" days of data to analyze
+const DAYS_OF_DATA_LIMIT = 60
 
 export function curationConsole (...args) {
   curationConsoleAux(...args).then(args => console.log(...args))
@@ -101,8 +106,8 @@ export function getMaxDaysOfData () {
   const { curationDaysOfData } = store.get()
   let maxDaysOfData = parseInt(curationDaysOfData)
 
-  if (!maxDaysOfData || maxDaysOfData < 1 || maxDaysOfData > 30 || maxDaysOfData !== curationDaysOfData) {
-    maxDaysOfData = Math.max(1, Math.min(30, maxDaysOfData || 1))
+  if (!maxDaysOfData || maxDaysOfData < 1 || maxDaysOfData > DAYS_OF_DATA_LIMIT || maxDaysOfData !== curationDaysOfData) {
+    maxDaysOfData = Math.max(1, Math.min(DAYS_OF_DATA_LIMIT, maxDaysOfData || 1))
     store.set({ curationDaysOfData: maxDaysOfData })
   }
   return maxDaysOfData
@@ -223,13 +228,13 @@ export async function bufferStatusSummaryAsync (currentFollows, currentTagFollow
     return
   }
 
-  const result = await getStatusKey(summary.id)
+  const result = await getSummaryKey(summary.id)
   if (result && result.length) {
     // Already buffered
     return
   }
 
-  setStatus(summary.id, summary)
+  setSummary(summary.id, summary)
 }
 
 export async function bufferStatusSummarySync (currentFollows, currentTagFollows, summary) {
@@ -238,25 +243,25 @@ export async function bufferStatusSummarySync (currentFollows, currentTagFollows
     return false
   }
 
-  await setStatus(summary.id, summary)
+  await setSummary(summary.id, summary)
   return true
 }
 
 export async function updateStatusSummary (statusId, key, value) {
-  let summary = await getStatus(statusId)
+  let summary = await getSummary(statusId)
   if (!summary) {
     return
   }
   if (summary.reblog_id && BOOSTER_KEYS.includes(key)) {
     // Give engagement credit to booster for reblogging/favouriting (not just to original poster)
     summary[BOOSTER_PREFIX + key] = value
-    setStatus(summary.id, summary)
+    setSummary(summary.id, summary)
 
-    summary = await getStatus(summary.reblog_id)
+    summary = await getSummary(summary.reblog_id)
     if (!summary) {
       return
     }
   }
   summary[key] = value
-  setStatus(summary.id, summary)
+  setSummary(summary.id, summary)
 }

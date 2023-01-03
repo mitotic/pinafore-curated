@@ -2,7 +2,7 @@ import { store } from '../_store/store.js'
 
 import { USER_TOPICS_KEY, MAX_AMP_FACTOR, MIN_AMP_FACTOR, UPDATE_INTERVAL_MINUTES, INTERVALS_PER_DAY, MOTD_MIN_MAHOOT_NUMBER, nextInterval, oldestInterval, getEditionTimeStrs, getSelfUser, getMyUsername } from './curationGeneral.js'
 
-import { getStatuses, newUserFilter, getFilter, setFilter, getCurrentFollows } from './curationCache.js'
+import { getSummaries, newUserFilter, getFilter, setFilter, getCurrentFollows } from './curationCache.js'
 
 import { MOTX_TAGS } from './curationStore.js'
 import { countTotalPosts, isPriorityStatus, curateSingleStatus } from './curationFilter.js'
@@ -88,7 +88,7 @@ export async function computePostStats () {
   let intervalCount = 0
   while (intervalStr < finalIntervalStr) {
     const nextIntervalStr = nextInterval(intervalStr)
-    const statusSummaries = await getStatuses(intervalStr, nextIntervalStr)
+    const statusSummaries = await getSummaries(intervalStr, nextIntervalStr)
 
     /// console.log('computePostStats ANALYZE', intervalCount, statusSummaries.length, intervalStr, nextIntervalStr, finalIntervalStr)
 

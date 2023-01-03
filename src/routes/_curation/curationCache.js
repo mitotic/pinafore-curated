@@ -194,16 +194,16 @@ export function idRangeBefore (beforeTimeStr) {
   return keyBefore(createSnowflakeId(beforeTimeStr), true)
 }
 
-export async function getStatusKey (statusId) {
+export async function getSummaryKey (statusId) {
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, keyRange(statusId, statusId))
 }
 
-export async function getStatus (statusId) {
+export async function getSummary (statusId) {
   const status = await getItem(currentInstance, CURATION_STATUSBUFFER_STORE, statusId)
   return status
 }
 
-export async function getStatuses (startIntervalStr, endIntervalStr, raw) {
+export async function getSummaries (startIntervalStr, endIntervalStr, raw) {
   let statuses = await getAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeForInterval(startIntervalStr, endIntervalStr))
 
   if (raw) {
@@ -214,19 +214,19 @@ export async function getStatuses (startIntervalStr, endIntervalStr, raw) {
   return statuses
 }
 
-export async function getAllStatusKeysBefore (beforeTimeStr) {
+export async function getAllSummaryKeysBefore (beforeTimeStr) {
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeBefore(beforeTimeStr))
 }
 
-export async function getAllStatusKeysRange (startIntervalStr, endIntervalStr) {
+export async function getAllSummaryKeysRange (startIntervalStr, endIntervalStr) {
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeForInterval(startIntervalStr, endIntervalStr))
 }
 
-export function removeStatuses (beforeTimeStr) {
+export function removeSummaries (beforeTimeStr) {
   deleteAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeBefore(beforeTimeStr))
 }
 
-export async function setStatus (id, status) {
+export async function setSummary (id, status) {
   await putItem(currentInstance, CURATION_STATUSBUFFER_STORE, status)
 }
 

@@ -14,7 +14,7 @@ import GenericDialogList from './GenericDialogList.html'
 import { show } from '../helpers/showDialog.js'
 import { close } from '../helpers/closeDialog.js'
 import { oncreate } from '../helpers/onCreateDialog.js'
-import { getUserFollow, setUserFollow, getCurrentFollows, getFilter, getStatus } from '../../../_curation/curationCache.js'
+import { getUserFollow, setUserFollow, getCurrentFollows, getFilter, getSummary } from '../../../_curation/curationCache.js'
 import { MAX_AMP_FACTOR, MIN_AMP_FACTOR, USER_TOPICS_KEY, USER_TIMEZONE_KEY, roundCount, roundPercent, getMyUsername, getDigestUsers, curationConsole } from '../../../_curation/curationGeneral.js'
 import { computePostStats } from '../../../_curation/curationStats.js'
 
@@ -50,7 +50,7 @@ export default {
     digestLabel: ({ isFollowee, username }) => isFollowee && getDigestUsers()[username] ? 'Dev: Digest: ' + getDigestUsers()[username] : '',
     ampLabel: ({ isFollowee, ampValue }) => isFollowee ? 'Amp Factor: ' + ampValue : '',
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
-    topicsLabel: ({ userProb }) => 'Dev: Topics: '+userProb[USER_TOPICS_KEY],
+    topicsLabel: ({ userProb }) => 'Dev: Topics: ' + userProb[USER_TOPICS_KEY],
     items: ({
       isTracked, isFollowee, isDevMode, droppedLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
     }) => ([
@@ -171,7 +171,7 @@ export default {
       curationConsole('DevUserStatus1', username, '\nFOLLOW', followInfo, 'GLOBALSTATS', userStats, 'USERSTATS', userProb)
 
       if (curateInfo.status) {
-        const summary = await getStatus(curateInfo.status.id)
+        const summary = await getSummary(curateInfo.status.id)
         curationConsole('DevUserStatus2', username, '\nSUMMARY', summary, 'STATUS', curateInfo.status)
       }
     },

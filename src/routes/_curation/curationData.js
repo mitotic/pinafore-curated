@@ -1,7 +1,7 @@
 import { CURATION_SETTINGS, store } from '../_store/store.js'
 
 import { clearStore, date2hhmmISO } from './curationStore.js'
-import { clearAllCached, getStatuses, getCurrentFollows, setUserFollow, setStatus } from './curationCache.js'
+import { clearAllCached, getSummaries, getCurrentFollows, setUserFollow, setSummary } from './curationCache.js'
 import { CURATION_STATUSBUFFER_STORE, CURATION_STATUSEDITION_STORE } from '../_database/constants.js'
 
 import { MAHOOT_DATA_VERSION, curationConsole, getMyUsername } from './curationGeneral.js'
@@ -24,10 +24,10 @@ export async function exportCurationData () {
 
   followsList.sort((a, b) => (a.username > b.username) ? 1 : -1)
 
-  const statuses = await getStatuses('2022-12-01T00:00Z', date2hhmmISO(), true)
-  statuses.sort((a, b) => a.id - b.id)
+  const summaries = await getSummaries('2022-12-01T00:00Z', date2hhmmISO(), true)
+  summaries.sort((a, b) => a.id - b.id)
 
-  console.log('exportCurationData: statuses', followsList.length, statuses.length)
+  console.log('exportCurationData: summaries', followsList.length, summaries.length)
 
   const paramObj = {}
   paramObj.mahoot_data_version = MAHOOT_DATA_VERSION
@@ -37,15 +37,15 @@ export async function exportCurationData () {
     paramObj[setting] = store.get()[setting]
   }
   paramObj.follows_count = followsList.length
-  paramObj.post_count = statuses.length
-  if (statuses.length) {
-    paramObj.earliest_post = getSnowflakeDate(statuses[0].id)
-    paramObj.latest_post = getSnowflakeDate(statuses[statuses.length - 1].id)
+  paramObj.post_count = summaries.length
+  if (summaries.length) {
+    paramObj.earliest_post = getSnowflakeDate(summaries[0].id)
+    paramObj.latest_post = getSnowflakeDate(summaries[summaries.length - 1].id)
   }
 
   const paramString = JSON.stringify(paramObj)
   const followsString = '[\n  ' + followsList.map(x => JSON.stringify(x)).join(',\n  ') + '\n]'
-  const statusString = '[\n  ' + statuses.map(x => JSON.stringify(x)).join(',\n  ') + '\n]'
+  const statusString = '[\n  ' + summaries.map(x => JSON.stringify(x)).join(',\n  ') + '\n]'
   const jsonString = '[\n' + paramString + ',\n' + followsString + ',\n' + statusString + '\n]'
 
   return jsonString
@@ -76,15 +76,15 @@ export function importCurationData (jsonString) {
   }
 
   const followsList = jsonObj[1]
-  const statuses = jsonObj[2]
-  console.log('importCurationData:', paramObj, followsList.length, statuses.length)
+  const summaries = jsonObj[2]
+  console.log('importCurationData:', paramObj, followsList.length, summaries.length)
 
   // Import user preferences
   for (const follow of followsList) {
     setUserFollow(follow.username, follow)
   }
 
-  importStatusSummaries(statuses)
+  importStatusSummaries(summaries)
 
   // Import settings
   const setObj = {}
@@ -106,7 +106,7 @@ async function importStatusSummaries (summaries) {
 
   let j = 0
   for (const summary of summaries) {
-    await setStatus(summary.id, summary)
+    await setSummary(summary.id, summary)
     j += 1
     if (!(j % 1000)) {
       console.log('importStatusSummaries: Imported', j)
