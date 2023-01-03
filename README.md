@@ -82,7 +82,7 @@ Pinafore+Mahoot is a "proof of concept" software that works but may fail on corn
 
 Pinafore is developed by [Nolan Lawson](https://github.com/nolanlawson)
 
-Mahoot modifications to Pinafore were added by [R. Saravanan](https://github.com/mitotic) ([@RSarava@Fediscience.org](https://fediscience.org/@RSarava) on Mastodon). Note that these modifications could easily have introduced new bugs — please don't blame them on Pinafore!
+Mahoot modifications to Pinafore were added by [R. Saravanan](https://github.com/mitotic) ([@RSarava@Fediscience.org](https://fediscience.org/@RSarava) on Mastodon). Note that these modifications could have introduced new bugs — please don't blame them on Pinafore!
 
 ## Running it yourself
 

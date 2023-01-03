@@ -147,7 +147,7 @@ Typically, only a fraction of your followees will need to have their amplifactio
 
 Mahoot has several additional settings to control the appearance of your home timeline:
 
-- ``Display timestamp/counter for feed``: This displays a timestamp for each older post along with a counter (``hh:mm#nnn``). The counter is reset to zero at midnight local time so that you can see how many posts have appeared on your timeline since then. (See screenshot below.)
+- ``Display timestamp/counter for feed``: This displays a timestamp for each post along with a counter (``hh:mm#nnn``) for older posts. The counter is reset to zero at midnight local time so that you can easily track how many posts have appeared in your timeline since then. (See screenshot for the ``Show Replay Context`` option below; the counter will not appear for recent posts because Mahoot collates posts periodically, about every two hours.)
 
 - ``Show dropped posts``: By default, Mahoot does not show any posts that are dropped by its probabilistic curation algorithm. Enabling this option will show those posts, de-emphasized by graying them out. This allows you to check how the curation algorithm is working. (*Note: You may need to reload the page for this to take effect.*)
 
@@ -179,15 +179,10 @@ Mahoot has several additional settings to control the appearance of your home ti
 
 Mahoot has several experimental features which are in various stages of development. These features are unpolished/incomplete and may change/break easily. Some of these features, like [Digest editions](#digest-editions), will work even without others using the Mahoot protocol. Other features, like [periodic/prioritized](#periodic-posts-message-of-the-dayweekmonth) posts, will work only if your followees also use the Mahoot protocol and insert the appropriate hashtags.
 
-### Experimental options
 
-- ``Show dev menus``: Show additional (undocumented) information in popup menus for development purposes
+### Reply context
 
-- ``Anonymize usernames``: Makes it easy to share screenshots of posting statistics
-
-- ``Amplify high boosts``: This is an experimental option that increases the probability that highly boosted posts will be displayed. (This may cause the daily view limit to be exceeded.)
-
-- ``Show reply context``: Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. This experimental option will attempt to show the original post  below the reply to provide context, provided the original post is somewhere in your feed. This usually requires that the original post is either authored or alreaded boosted by one of your followees.  See screenshot below for an example. (*Note: At this time, this option only takes effect after you reload the web page.*)
+Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. The ``Show reply context`` experimental option will attempt to show the original post  below the reply to provide context, provided the original post is somewhere in your feed. This usually requires that the original post is either authored or alreaded boosted by one of your followees.  See screenshot below for an example. (*Note: At this time, this option only takes effect after you reload the web page.*)
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/ShowReplyContext.png"
@@ -197,13 +192,14 @@ Mahoot has several experimental features which are in various stages of developm
 </em>
 </p>
 
+
 ### Digest editions
 
 This feature is inspired by newspapers, where you get information every morning from reporters and columnists, nicely organized into sections like Politics, Sports, Opinion etc. Treating some of your followees as columnists, this features allowes you to digest their posts into different sections and view them at the same time, like an edition of the newspaper.
 
-You don't have to wait a whole day to read a new digest edition in your feed. As shown in the Experimental settings menu above, you can schedule one or more local times (``hh:mm``) when you wish to display digests or "editions" of selected posts from your timeline. For example, you can choose to have a *Morning Edition* displayed at 08:00. At this time, you can specify a list of user handles in the text area below. All posts from the specified users will be collected and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the user handle to create sections within each edition, as shown in the screenshot below. More sophisticated ways to create editions will come later.
+You don't have to wait a whole day to read a new digest edition in your feed. The ``Digest edition time(s)`` option (see Experimental settings above) allows you to schedule one or more local times (``hh:mm``) when you wish to display digests or "editions" of selected posts from your timeline. For example, you can choose to have a *Morning Edition* displayed at 08:00. The ``Username#tags for auto digest`` option allows you to specify a list of usernames whose posts will be collected and automatically displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate which section within each edition their posts should be shown. (More sophisticated ways to create editions will be considered.)
 
-*Note*: At this time, you will need to refresh the web page to see the most recent edition.
+*Note*: At this time, you will need to refresh the web page to see the most recent edition. Empty editions will appear as a a thick line.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootEdition1.png"
@@ -228,10 +224,20 @@ Mahoot is designed to help even low-volume posters to reliably get their message
 <em>Portion of the followee Mastodon profile showing Mahoot-related info: Topics, Timezone, and Mahoot (number) </em>
 </p>
 
-
-
 ### Prioritized posts
 
-Mahoot distinguishes between prioritized posts and regular posts when it computes the statistical probability of displaying a post (see the popup screenshots in the [Posting Statistics](#posting-statistics) section). The views available to a followee (i.e., the Mahoot number) are [first allocated](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#post-prioritization) to priority posts. Any remaining views are allocated to regular posts. At this time, Mahoot assumes by default that a post (not reblog) by the followee that includes any hashtag is a priority post. To specify that only certain hashtags should indicate priority, a followee can add a ``Topics`` parameter to their Mastodon profile with a list of hashtags (see screenshot above). (This is an experimental feature and other customization options will be explored.)
+Mahoot probabilistically drops posts from followees. This works fine if all their posts are equally important, which is not always the case. Therefore, Mahoot supports [a mechanism to prioritize posts](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#post-prioritization). Different dropping probabilities are computed for prioritized posts versus regular posts (see the popup screenshots in the [Posting Statistics](#posting-statistics) section). The views available to a followee (i.e., the Mahoot number) are first allocated to priority posts. Any remaining views are allocated to regular posts. (As noted previously, periodic posts automatically receive the highest priority.)
 
-*Note*: As noted previously, periodic posts automatically receive the highest priority.
+At this time, Mahoot assumes by default that a post (not reblog) by the followee that includes any hashtag is a priority post. To specify that only certain hashtags should receive priority handling, a followee can add a ``Topics`` parameter to their Mastodon profile with a list of hashtags (see screenshot above). This will result in "off-topic" posts not being prioritized. Hashtag #priority can be used to override  this. (This is an experimental feature and other customization options will be explored.)
+
+*Note*: One can consider prioritizing posts based on their content, their popularity etc., as commercial curating algorithms typically do. However, this is hard to do due to the limited information available to a Mastodon client (or even a single server). For example, the boost count obtained from a decentralized server may not always be reliable. In any case, the goals of commercial curation algorithms may not be optimal for you and the results may not be very satifying. Mahoot relies upon your followees to do the curation for you, and for you to do the curation for your followers. That being said,  the ``Amplify high boosts`` option described below is a baby step in the direction of trying to use "popularity" to prioritize posts. 
+
+
+### Other experimental options
+
+- ``Amplify high boosts``: This is an experimental option that increases the display probability of highly boosted posts, using a followee-specific threshold based on the logarithmic average of the boost counts of their reblogs. If you have enabled the timestamp/counter option, the suffix ``HB`` will appear on the label to indicate these high boosts. (This option may cause the daily view limit to be exceeded.)
+
+- ``Anonymize usernames``: This option facilitates the sharing of screenshots that show user statistics
+
+- ``Show dev menus``: Show additional (undocumented) information in popup menus for development purposes
+
