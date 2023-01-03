@@ -1,5 +1,6 @@
 import { store } from '../_store/store.js'
 import { database } from '../_database/database.js'
+import { getStatus } from '../_api/statuses.js'
 
 import { createSnowflakeId, getSnowflakeEpoch, getSnowflakeDate } from './curationSnowflakeId.js'
 import { hhmm2localTime, date2hhmmISO } from './curationStore.js'
@@ -12,7 +13,7 @@ import { nextInterval, getEditionTimeStrs, summarizeStatus, bufferStatusSummaryA
 
 import { curateSingleStatus } from './curationFilter.js'
 
-const { currentInstance, curationShowAllStatus } = store.get()
+const { curationShowAllStatus } = store.get()
 
 const EDITION_TAGS = ['#motd', '#motw', '#motm', '#']
 
@@ -180,21 +181,28 @@ export function curateStatuses (instanceName, updating, statuses) {
   return result
 }
 
-export async function addReplyContexts (instanceName, statuses) {
-  const { curationShowReplyContext } = store.get()
+export async function addReplyContexts (instanceName, accessToken, statuses) {
   const result = []
 
   for (const status of statuses) {
     result.push(status)
     const origStatus = status.reblog || status
-    if (curationShowReplyContext && !status.curation_dropped && origStatus.in_reply_to_id && origStatus.in_reply_to_account_id !== origStatus.account.id) {
+    if (!status.curation_dropped && origStatus.in_reply_to_id && origStatus.in_reply_to_account_id !== origStatus.account.id) {
       // Reply post (but not self reply): display context (i.e., original post) below
-      const replyContextStatus = await database.getStatus(currentInstance, origStatus.in_reply_to_id)
+      let replyContextStatus = await database.getStatus(instanceName, origStatus.in_reply_to_id)
+
+      if (!replyContextStatus) {
+        console.log('addReplyContexts: retrieving original status from server')
+        replyContextStatus = await getStatus(instanceName, accessToken, origStatus.in_reply_to_id)
+        if (replyContextStatus && !replyContextStatus.in_reply_to_id) {
+          database.insertStatus(instanceName, replyContextStatus)
+        }
+      }
 
       if (replyContextStatus && !replyContextStatus.in_reply_to_id) {
-        // Original post found in cache; not a reply
+        // Original post found and is not a reply
         const contextId = createSnowflakeId(getSnowflakeEpoch(status.id) - 1)
-        const oldStatus = await database.getStatus(currentInstance, contextId)
+        const oldStatus = await database.getStatus(instanceName, contextId)
 
         if (!oldStatus || (oldStatus.curation_edition && oldStatus.reblog && oldStatus.reblog.id === replyContextStatus.id)) {
           // context Id does not collide with old status in cache (checking for rare occurrence)

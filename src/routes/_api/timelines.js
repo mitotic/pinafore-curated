@@ -4,8 +4,6 @@ import { store } from '../_store/store.js'
 
 import { insertEditionStatuses, curateStatuses, addReplyContexts } from '../_curation/curationTimeline.js'
 
-const { curationDisabled } = store.get()
-
 function getTimelineUrlPath (timeline) {
   switch (timeline) {
     case 'local':
@@ -83,10 +81,14 @@ export async function getTimeline (instanceName, accessToken, timeline, maxId, s
     items = items.map(item => item.last_status).filter(Boolean) // ignore falsy last_status'es
   }
 
+  const { curationDisabled, curationShowReplyContext } = store.get()
+
   if (!curationDisabled && timeline === 'home') {
     items = await insertEditionStatuses(items)
     items = curateStatuses(instanceName, false, items)
-    items = await addReplyContexts(instanceName, items)
+    if (curationShowReplyContext) {
+      items = await addReplyContexts(instanceName, accessToken, items)
+    }
     /// console.log('curationTest-ITEMS', items)
     /// console.log('curationTest-HEADERS', timeline, headers)
   }
