@@ -42,7 +42,6 @@ export async function insertEditionStatuses (statuses, updating) {
   const result = []
 
   for (const status of statuses) {
-
     for (const [j, editionTimeStr] of editionTimeStrs.entries()) {
       const editionTime = hhmm2localTime(editionTimeStr)
       const editionId = createSnowflakeId(editionTime)
@@ -66,7 +65,7 @@ export async function insertEditionStatuses (statuses, updating) {
       }
       // Edition boundary crossed
       // (Inequality check helps in creating "unique" edition reblog ids, but will fail in the rare case that status.id === editionId)
-      const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount]  // Prev edition time
+      const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount] // Prev edition time
       const startTime = hhmm2localTime(startTimeStr, editionTime.getTime())
       const startId = createSnowflakeId(startTime)
 

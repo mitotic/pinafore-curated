@@ -19,12 +19,12 @@ export async function processMessage (instanceName, accessToken, timelineName, m
     payload = JSON.parse(payload) // only these payloads are JSON-encoded for some reason
   }
 
+  const { curationDisabled, curationShowReplyContext, curationDevMessageHook } = store.get()
   switch (event) {
     case 'delete':
       deleteStatus(instanceName, payload)
       break
     case 'update':
-    const { curationDisabled, curationShowReplyContext, curationDevMessageHook } = store.get()
       if (curationDisabled || timelineName !== 'home') {
         addStatusOrNotification(instanceName, timelineName, payload)
       } else {
