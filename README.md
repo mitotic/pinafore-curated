@@ -68,14 +68,15 @@ For more detailed information on using Mahoot, see the [Mahoot User Guide](https
 For basic information on using Mahoot as a Mastodon client, see the
 [Pinafore user guide](https://github.com/nolanlawson/pinafore/blob/master/docs/User-Guide.md). See the [admin guide](https://github.com/nolanlawson/pinafore/blob/master/docs/Admin-Guide.md) if Pinafore cannot connect to your instance. (*Note: Currently Mahoot is only implemented for a single Mastodon instance; it will not work with multiple instances like standard Pinafore.*)
 
+
 ## Why is it called Mahoot?
 
 The name is a combination of Mahout, meaning an elephant trainer, and Toot, as Mastodon posts used to be called. (It's also how a Canadian might pronounce Mahout!)
 
+
 ## Caveat
 
-
-Pinafore+Mahoot is a "proof of concept" software that works but may fail on corner/edge cases. The goal is not to have everyone switch to using Pinafore+Mahoot, but to demonstrate that the [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md) is useful. This may inspire other Mastodon clients to also implement this protocol.
+Pinafore+Mahoot is a "proof of concept" software that works but may fail on corner/edge cases. The goal is not to have everyone switch to using Pinafore+Mahoot, but to demonstrate that the [curation protocol](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md) is useful. This may inspire other Mastodon clients to implement this protocol.
 
 
 ## Authors
@@ -83,6 +84,7 @@ Pinafore+Mahoot is a "proof of concept" software that works but may fail on corn
 Pinafore is developed by [Nolan Lawson](https://github.com/nolanlawson)
 
 Mahoot modifications to Pinafore were added by [R. Saravanan](https://github.com/mitotic) ([@RSarava@Fediscience.org](https://fediscience.org/@RSarava) on Mastodon). Note that these modifications could have introduced new bugs — please don't blame them on Pinafore!
+
 
 ## Running it yourself
 

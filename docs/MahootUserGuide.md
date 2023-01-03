@@ -1,6 +1,6 @@
 # Mahoot User Guide
 
-Version 0.3.9
+Version 0.3.10
 
 - [Getting started](#getting-started)
 
@@ -159,7 +159,7 @@ Mahoot has several additional settings to control the appearance of your home ti
 
 ## Caveats
 
-- If some changes don't seem to take effect or isn't working, *reloading* the web page will help. The experimental ``Show Reply Context`` and ``Digest editions`` features only work after you reload the web page.
+- If a change in the Mahoot settings doesn't seem to be having any visible effect, *reloading* the web page may help.
 
 - To update to the latest version of Mahoot on the website, a [hard refresh](https://fabricdigital.co.nz/assets/How-to-hard-refresh-browser-infographic.jpg) of the browser is usually needed.
 
@@ -182,7 +182,7 @@ Mahoot has several experimental features which are in various stages of developm
 
 ### Reply context
 
-Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. The ``Show reply context`` experimental option will attempt to show the original post  below the reply to provide context, provided the original post is somewhere in your feed. This usually requires that the original post is either authored or alreaded boosted by one of your followees.  See screenshot below for an example. (*Note: At this time, this option only takes effect after you reload the web page.*)
+Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. The ``Show reply context`` experimental option will attempt to show the original post  below the reply to provide context, provided the original post is somewhere in your feed. This usually requires that the original post is either authored or alreaded boosted by one of your followees.  See screenshot below for an example.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/ShowReplyContext.png"
@@ -230,7 +230,7 @@ Mahoot probabilistically drops posts from followees. This works fine if all thei
 
 At this time, Mahoot assumes by default that a post (not reblog) by the followee that includes any hashtag is a priority post. To specify that only certain hashtags should receive priority handling, a followee can add a ``Topics`` parameter to their Mastodon profile with a list of hashtags (see screenshot above). This will result in "off-topic" posts not being prioritized. Hashtag #priority can be used to override  this. (This is an experimental feature and other customization options will be explored.)
 
-*Note*: One can consider prioritizing posts based on their content, their popularity etc., as commercial curating algorithms typically do. However, this is hard to do due to the limited information available to a Mastodon client (or even a single server). For example, the boost count obtained from a decentralized server may not always be reliable. In any case, the goals of commercial curation algorithms may not be optimal for you and the results may not be very satifying. Mahoot relies upon your followees to do the curation for you, and for you to do the curation for your followers. That being said,  the ``Amplify high boosts`` option described below is a baby step in the direction of trying to use "popularity" to prioritize posts. 
+*Note*: One can consider prioritizing posts based on their content, their popularity etc., as commercial curating algorithms typically do. However, this is hard to do on the client side due to the limited information available to a single client (or even a single decentralized server). For example, the boost count obtained from a decentralized server may not always be reliable. In any case, the goals of commercial curation algorithms may not be optimal for you and the results may not be very satifying. Mahoot relies upon your followees to do the curation for you, and for you to do the curation for your followers. That being said,  the ``Amplify high boosts`` option described below is a baby step in the direction of trying to use "popularity" to prioritize posts. 
 
 
 ### Other experimental options
@@ -239,5 +239,5 @@ At this time, Mahoot assumes by default that a post (not reblog) by the followee
 
 - ``Anonymize usernames``: This option facilitates the sharing of screenshots that show user statistics
 
-- ``Show dev menus``: Show additional (undocumented) information in popup menus for development purposes
+- ``Show dev menus``: Show additional (undocumented) menus and other information for developers
 
