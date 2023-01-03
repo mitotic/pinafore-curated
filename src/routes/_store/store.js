@@ -57,6 +57,8 @@ const persistedState = {
   curationHideSelfReplies: false,
   curationAnonymize: false,
   curationDevMode: false,
+  curationDevFetchStatus: true,
+  curationDevMessageHook: true,
   curationDigestUsers: '',
   curationDataVersion: '',
   curationTimezone: '', // Continent/City (TODO)

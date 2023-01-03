@@ -24,6 +24,7 @@
              bind:checked="$curationDisabled">
     </label>
     <hr>
+
     <h2>Advanced <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#advanced-settings">(?)</a></h2>
     <label class="setting-group">
       Display timestamp/counter (hh:mm#nnn) for feed:
@@ -46,6 +47,7 @@
              bind:checked="$curationHideSelfReplies">
     </label>
     <hr>
+
     <h2>Experimental <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#experimental-settings">(?)</a></h2>
     <label class="setting-group">
       Show reply context:
@@ -78,6 +80,22 @@
              bind:checked="$curationDevMode">
     </label>
     <hr>
+
+    {#if ($curationDevMode)}
+    <h2>Development</h2>
+    <label class="setting-group">
+      Fetch needed status from server:
+      <input type="checkbox" id="curationDevFetchStatus"
+             bind:checked="$curationDevFetchStatus">
+    </label>
+    <label class="setting-group">
+      Append to messaged statuses
+      <input type="checkbox" id="curationDevMessageHook"
+             bind:checked="$curationDevMessageHook">
+    </label>
+    <hr>
+    {/if}
+
     <button class="primary" type="submit" id="submitButton">
         {saveLabel}
     </button>

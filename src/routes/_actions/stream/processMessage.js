@@ -1,14 +1,14 @@
 import { mark, stop } from '../../_utils/marks.js'
 import { deleteStatus } from '../deleteStatuses.js'
-import { addStatusOrNotification } from '../addStatusOrNotification.js'
+import { addStatusOrNotification, addStatusesOrNotifications } from '../addStatusOrNotification.js'
 import { emit } from '../../_utils/eventBus.js'
 
 import { store } from '../../_store/store.js'
-import { curateStatuses } from '../../_curation/curationTimeline.js'
+import { insertEditionStatuses, curateStatuses, addReplyContexts } from '../../_curation/curationTimeline.js'
 
 const KNOWN_EVENTS = ['update', 'delete', 'notification', 'conversation', 'filters_changed']
 
-export function processMessage (instanceName, timelineName, message) {
+export async function processMessage (instanceName, accessToken, timelineName, message) {
   let { event, payload } = (message || {})
   if (!KNOWN_EVENTS.includes(event)) {
     console.warn('ignoring message from server', message)
@@ -24,13 +24,25 @@ export function processMessage (instanceName, timelineName, message) {
       deleteStatus(instanceName, payload)
       break
     case 'update':
-      const { curationDisabled } = store.get()
-      if (!curationDisabled && timelineName === 'home') {
-        const curated = curateStatuses(instanceName, true, [payload])
-        payload = curated.length ? curated[0] : null
-      }
-      if (payload) {
+    const { curationDisabled, curationShowReplyContext, curationDevMessageHook } = store.get()
+      if (curationDisabled || timelineName !== 'home') {
         addStatusOrNotification(instanceName, timelineName, payload)
+      } else {
+        let items = [payload]
+
+        if (curationDevMessageHook) {
+          items = await insertEditionStatuses(items, true)
+        }
+
+        items = curateStatuses(instanceName, items, true)
+
+        if (curationDevMessageHook && curationShowReplyContext) {
+          items = await addReplyContexts(instanceName, accessToken, items)
+        }
+
+        if (items.length) {
+          addStatusesOrNotifications(instanceName, timelineName, items)
+        }
       }
       break
     case 'notification':

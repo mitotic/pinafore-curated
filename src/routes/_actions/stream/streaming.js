@@ -15,7 +15,8 @@ export function createStream (api, instanceName, accessToken, timelineName, firs
   }
 
   const onMessage = message => {
-    processMessage(instanceName, timelineName, message)
+    // async
+    processMessage(instanceName, accessToken, timelineName, message)
   }
 
   const onOpen = () => {

@@ -84,8 +84,8 @@ export async function getTimeline (instanceName, accessToken, timeline, maxId, s
   const { curationDisabled, curationShowReplyContext } = store.get()
 
   if (!curationDisabled && timeline === 'home') {
-    items = await insertEditionStatuses(items)
-    items = curateStatuses(instanceName, false, items)
+    items = await insertEditionStatuses(items, false)
+    items = curateStatuses(instanceName, items, false)
     if (curationShowReplyContext) {
       items = await addReplyContexts(instanceName, accessToken, items)
     }

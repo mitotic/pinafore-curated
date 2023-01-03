@@ -31,69 +31,88 @@ function editionLabel (status, section) {
 }
 
 let PrevStatusId = 0
+let MaxStatusId = 0
 
-export async function insertEditionStatuses (statuses) {
+export async function insertEditionStatuses (statuses, updating) {
   const editionTimeStrs = getEditionTimeStrs()
   const editionCount = editionTimeStrs.length
 
-  const editionTimes = editionTimeStrs.map(hhmm => hhmm2localTime(hhmm))
-  const editionIds = editionTimes.map(time => createSnowflakeId(time))
-
-  console.log('insertEditionStatuses:', statuses.length, editionTimeStrs, editionIds)
+  console.log('insertEditionStatuses:', statuses.length, updating, editionTimeStrs)
 
   const result = []
+
   for (const status of statuses) {
-    for (const [j, editionId] of editionIds.entries()) {
-      if (PrevStatusId && editionId && (PrevStatusId > editionId) && (status.id < editionId)) {
-        // Edition boundary crossed: prev status above and next status below edition
-        // (This helps in creating "unique" edition reblog ids, but this will fail in the rare case that status.id === editionId)
-        const endTime = editionTimes[j]
-        const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount]
-        const startTime = hhmm2localTime(startTimeStr, endTime.getTime())
-        const startId = createSnowflakeId(startTime)
 
-        const editionStatuses = await getAllEditionStatuses(startId, editionId)
-        const editionIdMax = createSnowflakeId(endTime, editionStatuses.length)
+    for (const [j, editionTimeStr] of editionTimeStrs.entries()) {
+      const editionTime = hhmm2localTime(editionTimeStr)
+      const editionId = createSnowflakeId(editionTime)
+      if (!editionId) {
+        continue
+      }
 
-        if (editionStatuses.length && PrevStatusId > editionIdMax) {
-          const editionName = '𝔇𝔞𝔦𝔩𝔶 𝔈𝔡𝔦𝔱𝔦𝔬𝔫' + (editionCount > 1 ? ' ' + (j + 1) : '') + ' \uD83D\uDDDE\uFE0F'
+      let aboveEditionId = null
 
-          editionStatuses.sort((a, b) => (editionLabel(a) > editionLabel(b)) ? 1 : -1)
-
-          console.log('insertEditionStatuses NEW-EDITION', editionName, editionStatuses.length, endTime)
-
-          let prevLabel = ''
-          for (const [index, editionStatus] of editionStatuses.entries()) {
-            const curLabel = editionLabel(editionStatus, true)
-            const sectionName = editionName + (curLabel ? ' #' + curLabel : '')
-            const acctName = 'DailyEdition' + (editionCount > 1 ? '' + (j + 1) : '') + curLabel.replace(/\W/g, '')
-
-            const insertId = createSnowflakeId(endTime, editionStatuses.length - index - 1)
-            const rebloggedStatus = curatorReblog(editionStatus, insertId, acctName, sectionName)
-
-            rebloggedStatus.demarcate_side = 1
-            if (index === 0) {
-              rebloggedStatus.demarcate_top = 1
-            } else if (curLabel !== prevLabel) {
-              rebloggedStatus.demarcate_top_lite = 1
-            }
-
-            if (index === editionStatuses.length - 1) {
-              rebloggedStatus.demarcate_bottom = 1
-            }
-
-            result.push(rebloggedStatus)
-            console.log('insertEditionStatuses EDITION ENTRY', index, editionLabel(editionStatus), editionStatus, rebloggedStatus)
-            prevLabel = curLabel
-          }
-        } else {
-          //  No edition statuses available; indicate empty edition through demarcation
-          status.demarcate_top_heavy = 1
+      if (updating) {
+        if (MaxStatusId && (MaxStatusId < editionId) && (status.id > editionId)) {
+          aboveEditionId = status.id
         }
+      } else {
+        if (PrevStatusId && (status.id < editionId) && (PrevStatusId > editionId)) {
+          aboveEditionId = PrevStatusId
+        }
+      }
+      if (!aboveEditionId) {
+        continue
+      }
+      // Edition boundary crossed
+      // (Inequality check helps in creating "unique" edition reblog ids, but will fail in the rare case that status.id === editionId)
+      const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount]  // Prev edition time
+      const startTime = hhmm2localTime(startTimeStr, editionTime.getTime())
+      const startId = createSnowflakeId(startTime)
+
+      const editionStatuses = await getAllEditionStatuses(startId, editionId)
+      const editionIdMax = createSnowflakeId(editionTime, editionStatuses.length)
+
+      if (!editionStatuses.length || aboveEditionId <= editionIdMax) {
+        // Empty edition or rare overlap between edition reblog Ids and Id of the status to be displayed above the edition
+        status.demarcate_top_heavy = 1
+        continue
+      }
+
+      const editionName = '𝔇𝔞𝔦𝔩𝔶 𝔈𝔡𝔦𝔱𝔦𝔬𝔫' + (editionCount > 1 ? ' ' + (j + 1) : '') + ' \uD83D\uDDDE\uFE0F'
+
+      editionStatuses.sort((a, b) => (editionLabel(a) > editionLabel(b)) ? 1 : -1)
+
+      console.log('insertEditionStatuses NEW-EDITION', editionName, editionStatuses.length, editionTime)
+
+      let prevLabel = ''
+      for (const [index, editionStatus] of editionStatuses.entries()) {
+        const curLabel = editionLabel(editionStatus, true)
+        const sectionName = editionName + (curLabel ? ' #' + curLabel : '')
+        const acctName = 'DailyEdition' + (editionCount > 1 ? '' + (j + 1) : '') + curLabel.replace(/\W/g, '')
+
+        const insertId = createSnowflakeId(editionTime, editionStatuses.length - index - 1)
+        const rebloggedStatus = curatorReblog(editionStatus, insertId, acctName, sectionName)
+
+        rebloggedStatus.demarcate_side = 1
+        if (index === 0) {
+          rebloggedStatus.demarcate_top = 1
+        } else if (curLabel !== prevLabel) {
+          rebloggedStatus.demarcate_top_lite = 1
+        }
+
+        if (index === editionStatuses.length - 1) {
+          rebloggedStatus.demarcate_bottom = 1
+        }
+
+        result.push(rebloggedStatus)
+        console.log('insertEditionStatuses EDITION ENTRY', index, editionLabel(editionStatus), editionStatus, rebloggedStatus)
+        prevLabel = curLabel
       }
     }
     result.push(status)
     PrevStatusId = status.id
+    MaxStatusId = Math.max(status.id, MaxStatusId)
   }
   return result
 }
@@ -126,7 +145,7 @@ function boostStatusId (statusId) {
   return true
 }
 
-export function curateStatuses (instanceName, updating, statuses) {
+export function curateStatuses (instanceName, statuses, updating) {
   const { curationHideDuplicateBoosts, curationLastSaveInterval } = store.get()
   console.log('curateStatuses', instanceName, updating, statuses.length)
 
@@ -140,6 +159,7 @@ export function curateStatuses (instanceName, updating, statuses) {
 
   const result = []
   for (const status of statuses) {
+    MaxStatusId = Math.max(status.id, MaxStatusId)
     if (nextIntervalId && (status.id >= nextIntervalId)) {
       prevIntervalComplete = true
     }
@@ -182,6 +202,7 @@ export function curateStatuses (instanceName, updating, statuses) {
 }
 
 export async function addReplyContexts (instanceName, accessToken, statuses) {
+  const { curationDevFetchStatus } = store.get()
   const result = []
 
   for (const status of statuses) {
@@ -191,7 +212,7 @@ export async function addReplyContexts (instanceName, accessToken, statuses) {
       // Reply post (but not self reply): display context (i.e., original post) below
       let replyContextStatus = await database.getStatus(instanceName, origStatus.in_reply_to_id)
 
-      if (!replyContextStatus) {
+      if (!replyContextStatus && curationDevFetchStatus) {
         console.log('addReplyContexts: retrieving original status from server')
         replyContextStatus = await getStatus(instanceName, accessToken, origStatus.in_reply_to_id)
         if (replyContextStatus && !replyContextStatus.in_reply_to_id) {
