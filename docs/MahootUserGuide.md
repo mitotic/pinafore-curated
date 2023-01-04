@@ -241,5 +241,5 @@ At this time, Mahoot assumes by default that a post (not reblog) by the followee
 
 - ``Anonymize usernames``: This option facilitates the sharing of screenshots that show user statistics
 
-- ``Show dev menus``: Show additional (undocumented) menus and other information for developers
+- ``Show dev menus``: Show additional (undocumented) menus and other information for developers. One "dev" feature that can be useful is ``Erase recent curation data``. It erases curation data for the last 12 hours. Wait for about 30 seconds after you erase and then click the ``Reload`` button next to it. Mahoot will retrieve all the recent posts again from the server. This will allow changes in Mahoot settings, such as Digest Edition specifications, to take effect from 12 hours prior and show up in your timeline.
 

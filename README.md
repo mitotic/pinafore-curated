@@ -40,7 +40,7 @@ Mahoot will also implement a feature where you can curate some posts into digest
 
 ## Using Mahoot
 
-You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a browser on a computer or a smart phone (there is currently no phone app available). Simply log into a Mastodon instance and start browsing. You can go to the *Settings > Mahoot* menu to see the configuration options. The most important setting is *Average views per day* (see below), which statistically limits your viewing.
+You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a browser on a computer or a smart phone (there is currently no phone app available). Simply log into a Mastodon instance and start browsing. You can go to the *Settings > Mahoot* menu to see the configuration options. The most important setting is *Average views per day* (see below), which statistically limits your viewing. (The [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md) provides more detailed information on different settings.)
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/SettingsBasic.png"
@@ -63,9 +63,8 @@ The posting statistics for all your followees are displayed at the bottom of the
 
 Remember that Mahoot is alpha quality software that is being actively developed and may occasionally break. However, that won't break anything else because Mahoot is a standalone Mastodon web client that stores all its data just in your web browser. You can continue to access Mastodon using any other web client or phone app with no interference from Mahoot. You may also choose to switch anytime to the (uncurated) stable version of Pinafore at [Pinafore.social](https://Pinafore.social).
 
-For more detailed information on using Mahoot, see the [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md).
-
-For basic information on using Mahoot as a Mastodon client, see the
+See the [Mahoot User's Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md) for more information.
+For basic information on the Mastodon client features, see the
 [Pinafore user guide](https://github.com/nolanlawson/pinafore/blob/master/docs/User-Guide.md). See the [admin guide](https://github.com/nolanlawson/pinafore/blob/master/docs/Admin-Guide.md) if Pinafore cannot connect to your instance. (*Note: Currently Mahoot is only implemented for a single Mastodon instance; it will not work with multiple instances like standard Pinafore.*)
 
 
