@@ -5,7 +5,7 @@ import { createSnowflakeId, getSnowflakeEpoch } from './curationSnowflakeId.js'
 
 import { setUserFollow } from './curationCache.js'
 import { USER_TOPICS_KEY, USER_TIMEZONE_KEY, MOTD_MIN_MAHOOT_NUMBER, getDigestUsers } from './curationGeneral.js'
-import { MOTD_TAG, MOTX_TAGS, DIGEST_TAG, NODIGEST_TAG, PRIORITY_TAG, equalForTimezone } from './curationStore.js'
+import { MOTD_TAG, MOTX_TAG, MOT_TAGS, DIGEST_TAG, NODIGEST_TAG, PRIORITY_TAG, equalForTimezone } from './curationStore.js'
 
 import { HmacRandom } from '../_thirdparty/HMAC/HMAC.js'
 
@@ -101,12 +101,12 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
         const userTimezone = follow[USER_TIMEZONE_KEY] || 'UTC'
         modStatus.curation_tag += ` [amp factor ${follow.amp_factor}]`
 
-        const motxFound = !statusSummary.reblog_id && statusSummary.tags.some((tag) => MOTX_TAGS.includes(tag))
+        const motxFound = !statusSummary.reblog_id && statusSummary.tags.some((tag) => MOT_TAGS.includes(tag))
 
         if (motxFound) {
           const userMahootNumber = follow.amp_factor * currentStats.mahoot_number
 
-          for (const tag of MOTX_TAGS) {
+          for (const tag of MOT_TAGS) {
             if (!statusSummary.tags.includes(tag)) {
               continue
             }
@@ -138,9 +138,6 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
             priority = true
           }
         }
-      } else if (digestible && digestUsers[username]) {
-        // Assign priority to all digestible posts from digest users
-        priority = true
       }
 
       const priorityDrop = randomNum >= userEntry.priority_prob
@@ -156,12 +153,7 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
       }
 
       if (motxAccept) {
-        if (editionCount && !statusSummary.tags.includes(NODIGEST_TAG)) {
-          // Include MOTx post or prioritized tagged post in digest edition
-          /// console.log("curateSingleStatus-MOTxSAVE", username, motxAccept, statusSummary)
-          modStatus.curation_save = '#' + motxAccept
-          modStatus.curation_dropped = 'saved ' + motxAccept
-        }
+        modStatus.curation_dropped = ''
       } else if (priority) {
         modStatus.curation_dropped = priorityDrop ? 'random (priority)' : ''
       } else {
@@ -171,14 +163,19 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
       if (modStatus.curation_dropped) {
         modStatus.curation_tag += ' [Dropped ' + modStatus.curation_dropped + ']'
         /// console.log('***curationTest-post_prob DROPPED', username, userEntry.post_prob, randomNum, modStatus.curation_tag)
-      } else if (digestible && digestUsers[username]) {
-        // Include post from test user
-        /// console.log("curateSingleStatus-TESTSAVE", username, digestUsers[username])
-        modStatus.curation_save = digestUsers[username]
-        modStatus.curation_dropped = 'saved edition'
-      } else if (digestible && statusSummary.tags.includes(DIGEST_TAG)) {
-        modStatus.curation_save = '#' + DIGEST_TAG
-        modStatus.curation_dropped = 'saved ' + DIGEST_TAG
+      } else if (digestible) {
+        const digestUser = digestUsers[username] || null
+        if (digestUser && (!digestUser.tag || statusSummary.tags.includes(digestUser.tag) || (motxAccept && digestUser.tag === MOTX_TAG))) {
+          // Save post from digest user (with matching tag, if present) for next edition
+          /// console.log("curateSingleStatus-DIGESTSAVE", username, digestUser)
+          modStatus.curation_save = digestUser.section
+          modStatus.curation_dropped = 'saved for edition ' + digestUser.section
+        } else if (motxAccept && statusSummary.tags.includes(DIGEST_TAG)) {
+          // Save MOTx post for next edition
+          /// console.log("curateSingleStatus-MOTxSAVE", username, motxAccept, statusSummary)
+          modStatus.curation_save = '#' + motxAccept
+          modStatus.curation_dropped = 'saved for edition ' + motxAccept
+        }
       }
     }
   }

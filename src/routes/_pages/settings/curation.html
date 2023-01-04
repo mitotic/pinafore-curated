@@ -62,7 +62,7 @@
     <br>
     <label for="curationDigestUsers">Username#tags for auto digest:</label>
         <textarea bind:value="$curationDigestUsers"
-                  placeholder="name1@server1#DigestTopic, name2@server2#DigestTopic2, ..."
+                  placeholder="username1, username2@server2 *SectionName username3@server3#tag3, ..."
                   maxlength="1000"></textarea>
     <label class="setting-group">
       Amplify high boosts:
@@ -103,6 +103,7 @@
   </form>
 
   <div class="ui-settings">
+    {#if ($curationDevMode)}
     <h2>Data export/import/erase</h2>
     <button class="primary" id="exportButton" on:click="onExportAction(event)">
        Export curation data to file
@@ -112,9 +113,17 @@
      <input type="file" on:change="onFileChange(event)">
     <br>
     <button class="primary" id="eraseButton" on:click="onEraseAction(event)">
-       Erase curation data
+       Erase recent curation data
+    </button>
+    <button class="primary" id="reloadButton" on:click="onReloadAction(event)">
+       Reload page
     </button>
     <hr>
+    <button class="primary" id="eraseAllButton" on:click="onEraseAllAction(event)">
+       Erase ALL curation data
+    </button>
+    <hr>
+    {/if}
     <h2>Statistics <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#posting-statistics">(?)</a></h2>
     {#if updatingBuffer}<em>{updatingBuffer}</em><br>{/if}
     <em>Updated: {$curationFilterTime ? new Date($curationFilterTime).toLocaleString() : '...'}
@@ -184,9 +193,9 @@
   import { importShowTextConfirmationDialog } from '../../_components/dialog/asyncDialogs/importShowTextConfirmationDialog.js'
   import { importShowCurateOptionsDialog } from '../../_components/dialog/asyncDialogs/importShowCurateOptionsDialog.js'
 
-  import { MOTX_TAGS } from '../../_curation/curationStore.js'
+  import { MOT_TAGS } from '../../_curation/curationStore.js'
   import { getCurrentFollows, getFilter } from '../../_curation/curationCache.js'
-  import { exportCurationData, importCurationData, eraseCurationData } from '../../_curation/curationData.js'
+  import { exportCurationData, importCurationData, eraseRecentCurationData, eraseAllCurationData } from '../../_curation/curationData.js'
 
   import { nextInterval, getSelfUser, getMyUsername, roundCount } from '../../_curation/curationGeneral.js'
   import { computePostStats } from '../../_curation/curationStats.js'
@@ -227,13 +236,27 @@
           download: 'mahootData'
         }).click()
       },
+      onReloadAction (evt) {
+        console.log('onReloadAction', evt)
+        evt.preventDefault()
+        document.location.reload(true)
+      },
       async onEraseAction (evt) {
         console.log('onEraseAction', evt)
         const showTextConfirmationDialog = await importShowTextConfirmationDialog()
         showTextConfirmationDialog({
-          text: 'Erase curation data?'
+          text: 'Erase recent curation data?'
         }).on('positive', () => {
-          eraseCurationData()
+          eraseRecentCurationData()
+        })
+      },
+      async onEraseAllAction (evt) {
+        console.log('onAllEraseAction', evt)
+        const showTextConfirmationDialog = await importShowTextConfirmationDialog()
+        showTextConfirmationDialog({
+          text: 'Erase ALL curation data?'
+        }).on('positive', () => {
+          eraseAllCurationData()
         })
       },
       async onClickAction (event) {
@@ -259,7 +282,7 @@
 
       motxStats: ({ $curationLastMotxDates }) => {
         const result = []
-        for (const key of MOTX_TAGS) {
+        for (const key of MOT_TAGS) {
           const value = $curationLastMotxDates[key]
           if (value) {
             result.push(`#${key.toUpperCase()} at ${new Date(value).toLocaleString()}`)

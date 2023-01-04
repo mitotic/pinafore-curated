@@ -4,14 +4,12 @@ import { USER_TOPICS_KEY, MAX_AMP_FACTOR, MIN_AMP_FACTOR, UPDATE_INTERVAL_MINUTE
 
 import { getSummaries, newUserFilter, getFilter, setFilter, getCurrentFollows } from './curationCache.js'
 
-import { MOTX_TAGS } from './curationStore.js'
+import { MOT_TAGS } from './curationStore.js'
 import { countTotalPosts, isPriorityStatus, curateSingleStatus } from './curationFilter.js'
 
 import { getSnowflakeDate } from './curationSnowflakeId.js'
 
 import { HmacHex } from '../_thirdparty/HMAC/HMAC.js'
-
-const { currentInstance } = store.get()
 
 const STATUS_STATS_PROTO = { boost_count: 0, fboost_count: 0, reblogs_count: 0 }
 
@@ -34,7 +32,8 @@ export function newUserAccum (obj) {
 }
 
 export async function computePostStats () {
-  const { curationLastSaveInterval } = store.get()
+  const { currentInstance, curationLastSaveInterval } = store.get()
+
   const selfUser = getSelfUser()
   const myUsername = selfUser.username
 
@@ -231,7 +230,7 @@ function accumulateStatusCounts (currentFollows, userAccum, summaryCache, status
       }
     } else {
       // Post count (not reblog)
-      const motx = summaryInfo.tags.some((tag) => MOTX_TAGS.includes(tag))
+      const motx = summaryInfo.tags.some((tag) => MOT_TAGS.includes(tag))
 
       // TODO: a better way to indicate priority
       const priority = isPriorityStatus(summaryInfo, accum.topics)

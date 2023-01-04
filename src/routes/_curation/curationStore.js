@@ -6,8 +6,9 @@ import { dbPromise, getDatabase } from '../_database/databaseLifecycle.js'
 export const MOTD_TAG = 'motd'
 export const MOTW_TAG = 'motw'
 export const MOTM_TAG = 'motm'
+export const MOTX_TAG = 'motx'
 
-export const MOTX_TAGS = [MOTD_TAG, MOTW_TAG, MOTM_TAG]
+export const MOT_TAGS = [MOTD_TAG, MOTW_TAG, MOTM_TAG]
 
 export const PRIORITY_TAG = 'priority'
 
@@ -20,6 +21,10 @@ export function keyRange (minId, maxId, excludeMin, excludeMax) {
 
 export function keyBefore (maxId, excludeMax) {
   return IDBKeyRange.upperBound(maxId, excludeMax)
+}
+
+export function keyAfter (minId, excludeMin) {
+  return IDBKeyRange.lowerBound(minId, excludeMin)
 }
 
 export async function putItem (instanceName, storeName, item) {
@@ -125,7 +130,7 @@ export function getUTCWeekStartDate (dateStr) {
 }
 
 export function date2hhmmISO (date) {
-  return (date || new Date()).toISOString().substring(0, 16) + 'Z'
+  return (date ? new Date(date) : new Date()).toISOString().substring(0, 16) + 'Z'
 }
 
 export function convertDate2Timezone (date, timezone) {

@@ -114,7 +114,7 @@
   import { scheduleIdleTask } from '../../_utils/scheduleIdleTask.js'
 
   import { getHashtags } from '../../_curation/curationGeneral.js'
-  import { MOTX_TAGS, date2hhmmISO, equalForTimezone } from '../../_curation/curationStore.js'
+  import { MOT_TAGS, date2hhmmISO, equalForTimezone } from '../../_curation/curationStore.js'
   import { importShowCurateModalDialog } from '../dialog/asyncDialogs/importShowCurateModalDialog.js'
 
   export default {
@@ -215,7 +215,7 @@
           let errMsg = ''
           let update = false
 
-          for (const tag of MOTX_TAGS) {
+          for (const tag of MOT_TAGS) {
             if (tags.includes(tag)) {
               if (curationLastMotxDates[tag] && equalForTimezone(tag, curationLastMotxDates[tag], curDate, timezone)) {
                 errMsg = 'Error: Already posted #' + tag.toUpperCase() + ' at ' + (new Date(curationLastMotxDates[tag]).toLocaleString())

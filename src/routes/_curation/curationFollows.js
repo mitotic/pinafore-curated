@@ -8,12 +8,11 @@ import { USER_FOLLOW_UPDATE, setParam, getParam, newUserFollow, removeUserFollow
 
 import { updateBioInfo } from './curationGeneral.js'
 
-const { loggedInInstances, currentInstance, verifyCredentials } = store.get()
-
 const FOLLOWS_REFRESH_TIME = 'followsRefreshTime'
 
 export async function refreshCurationFollows (force) {
   // Create/update user DB
+  const { loggedInInstances, currentInstance, verifyCredentials } = store.get()
   const currentFollows = getCurrentFollows()
 
   if (!force && Object.keys(currentFollows).length) {

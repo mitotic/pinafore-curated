@@ -1,6 +1,6 @@
 # Mahoot User Guide
 
-Version 0.3.10
+Version 0.3.11
 
 - [Getting started](#getting-started)
 
@@ -149,7 +149,7 @@ Mahoot has several additional settings to control the appearance of your home ti
 
 - ``Display timestamp/counter for feed``: This displays a timestamp for each post along with a counter (``hh:mm#nnn``) for older posts. The counter is reset to zero at midnight local time so that you can easily track how many posts have appeared in your timeline since then. (See screenshot for the ``Show Replay Context`` option below; the counter will not appear for recent posts because Mahoot collates posts periodically, about every two hours.)
 
-- ``Show dropped posts``: By default, Mahoot does not show any posts that are dropped by its probabilistic curation algorithm. Enabling this option will show those posts, de-emphasized by graying them out. This allows you to check how the curation algorithm is working. (*Note: You may need to reload the page for this to take effect.*)
+- ``Show dropped posts``: By default, Mahoot does not show any posts that are dropped by its probabilistic curation algorithm. Enabling this option will show those posts, de-emphasized by graying them out. Clicking on the faucet icon will tell you why the post was dropped. This allows you to check how the curation algorithm is working. (*Note: You may need to reload the page for this option to take effect.*)
 
 - ``Hide duplicate boosts``: Another experimental option that will hide display of posts that have already been displayed as boosts. (This is a variation of the standard ``Group boosts in timelines`` option in Mastodon Preferences>Other.)
 
@@ -182,7 +182,7 @@ Mahoot has several experimental features which are in various stages of developm
 
 ### Reply context
 
-Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. The ``Show reply context`` experimental option will attempt to show the original post  below the reply to provide context, provided the original post is somewhere in your feed. This usually requires that the original post is either authored or alreaded boosted by one of your followees.  See screenshot below for an example.
+Oftentimes viewing the boosted reply to a post doesn't make much sense if you haven't seen (or don't recall) the original post. The ``Show reply context`` experimental option will attempt to show the original post below the reply to provide context, if the original post is available from your Mastodon server. See screenshot below for an example.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/ShowReplyContext.png"
@@ -197,9 +197,11 @@ Oftentimes viewing the boosted reply to a post doesn't make much sense if you ha
 
 This feature is inspired by newspapers, where you get information every morning from reporters and columnists, nicely organized into sections like Politics, Sports, Opinion etc. Treating some of your followees as columnists, this features allowes you to digest their posts into different sections and view them at the same time, like an edition of the newspaper.
 
-You don't have to wait a whole day to read a new digest edition in your feed. The ``Digest edition time(s)`` option (see Experimental settings above) allows you to schedule one or more local times (``hh:mm``) when you wish to display digests or "editions" of selected posts from your timeline. For example, you can choose to have a *Morning Edition* displayed at 08:00. The ``Username#tags for auto digest`` option allows you to specify a list of usernames whose posts will be collected and automatically displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate which section within each edition their posts should be shown. (More sophisticated ways to create editions will be considered.)
+You don't have to wait a whole day to read a new digest edition in your feed. The ``Digest edition time(s)`` option (see Experimental settings above) allows you to schedule one or more local times (``hh:mm``) when you wish to display digests or "editions" of selected posts from your timeline. For example, you can choose to have a *Morning Edition* displayed at 08:00 and an *Afternoon edition* at 15:00.
 
-*Note*: At this time, you will need to refresh the web page to see the most recent edition. Empty editions will appear as a a thick line.
+The ``Username#tags for auto digest`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. (More sophisticated ways to format editions will be available in the future.)
+
+*Note*: Empty editions will appear as a a thick line.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootEdition1.png"
@@ -211,7 +213,7 @@ You don't have to wait a whole day to read a new digest edition in your feed. Th
 
 ### Periodic posts (message of the day/week/month)
 
-Mahoot is designed to help even low-volume posters to reliably get their message across to their followers. For example, if you are a reporter who posts a daily news update or a blogger who posts weekly, simply adding a hashtag will prioritize your post: add ``#MOTD`` (Message Of The Day) to your daily post, ``#MOTW`` to your weekly post, or ``#MOTM`` to your monthly post. Periodic posts are automatically given the highest priority and displayed in the Digest/Edition format. (You can insert ``#NoDigest`` to override this.) 
+Mahoot is designed to help even low-volume posters to reliably get their message across to their followers. For example, if you are a reporter who posts a daily news update or a blogger who posts weekly, simply adding a hashtag will prioritize your post: add ``#MOTD`` (Message Of The Day) to your daily post, ``#MOTW`` to your weekly post, or ``#MOTM`` to your monthly post. Periodic posts are automatically given the highest priority. You can add ``#Digest`` to include periodic posts in the next Digest Edition.
 
 *Note 1*: Mahoot tracks usage of periodic tags: e.g., if you post more than one ``#MOTD`` message per day, only one of them&mdash;randomly chosen&mdash;will receive the special treatment. If you post using Mahoot, it will also warn you about overuse of periodic tags. If a followees Mahoot number falls below 1 post/day, their ``#MOTD`` posts lose their priority. (To hide weekly or monthly posts, you will need to mute or unfollow the user.)
 

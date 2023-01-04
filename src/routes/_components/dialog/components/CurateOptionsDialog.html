@@ -47,7 +47,7 @@ export default {
     engagedLabel: ({ isFollowee, userProb }) => isFollowee ? `Dev: Engaged posts: ${roundCount(userProb.engaged_daily)}` : '',
     ampValue: ({ followInfo }) => followInfo ? followInfo.amp_factor : '',
     mahootLabel: ({ isFollowee, ampValue, userStats }) => isFollowee ? 'User Mahoot number: ' + (ampValue * userStats.mahoot_number).toFixed(2) : '',
-    digestLabel: ({ isFollowee, username }) => isFollowee && getDigestUsers()[username] ? 'Dev: Digest: ' + getDigestUsers()[username] : '',
+    digestLabel: ({ isFollowee, username }) => isFollowee && 'Dev: Digest: ' + JSON.stringify(getDigestUsers()[username] || null),
     ampLabel: ({ isFollowee, ampValue }) => isFollowee ? 'Amp Factor: ' + ampValue : '',
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
     topicsLabel: ({ userProb }) => 'Dev: Topics: ' + userProb[USER_TOPICS_KEY],

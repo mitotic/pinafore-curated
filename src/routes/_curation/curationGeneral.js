@@ -4,7 +4,7 @@ import { offsetDaysInDate, nextTimeInterval, hhmm2localTime } from './curationSt
 
 import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
-export const MAHOOT_CODE_VERSION = '0.3.10'
+export const MAHOOT_CODE_VERSION = '0.3.11'
 
 export const MAHOOT_DATA_VERSION = '0.3'
 
@@ -141,16 +141,72 @@ export function getHashtags (text, lowerCase) {
   }
 }
 
+let DigestUsersText = ''
+let DigestUsersCached = {}
+
 export function getDigestUsers () {
-  // Entries: name1@server1#DigestTopic, name2@server2#DigestTopic2, ...
-  const { curationDigestUsers } = store.get()
-  const testEntries = curationDigestUsers.split(',').map(s => s.trim()).map(s => s.startsWith('@') ? s.substr(1) : s).filter(s => s)
-  const testUsers = {}
-  for (const entry of testEntries) {
-    const comps = entry.split('#')
-    testUsers[comps[0].toLowerCase()] = comps.length > 1 ? '#' + comps[1] : '#'
+  // Entries: username1, username2@server2 *SectionName username3@server3#tag3, ...
+  let { curationDigestUsers } = store.get()
+  if (curationDigestUsers === DigestUsersText) {
+    return DigestUsersCached
   }
-  return testUsers
+
+  const rewritten = []
+  const sectionEntries = curationDigestUsers.trim().split('*')
+  const digestUsers = {}
+  let rewrite = false
+
+  let userCount = 0
+  for (const [j, sectionEntry] of sectionEntries.entries()) {
+    let names = sectionEntry.replace(/,/g, ' ').trim().split(/\s+/)
+    if (!names[0]) {
+      continue
+    }
+    let section
+    if (!j) {
+      section = '*'
+    } else {
+      section = '*' + names[0]
+      names = names.slice(1)
+    }
+    if (!names.length) {
+      continue
+    }
+    const userEntries = names.map(s => s.trim()).map(s => s.startsWith('@') ? s.substr(1).trim() : s).filter(s => s)
+    const secusers = []
+    for (const userEntry of userEntries) {
+      const match = userEntry.match(/^(\w+(@[-.a-z0-9]+)?)(#\w+)?$/i)
+      if (match) {
+        const username = match[1].toLowerCase()
+        const tag = (match[3] || '').toLowerCase()
+        if (digestUsers[username]) {
+          secusers.push('Duplicate:' + userEntry)
+          rewrite = true
+        } else {
+          secusers.push(userEntry)
+          userCount += 1
+          digestUsers[username] = { tag, section, index: userCount }
+        }
+      } else {
+        if (userEntry.startsWith('Invalid:') || userEntry.startsWith('Duplicate:')) {
+          secusers.push(userEntry)
+        } else {
+          secusers.push('Invalid:' + userEntry)
+          rewrite = true
+        }
+      }
+    }
+    rewritten.push((section === '*' ? '' : section + '\n') + secusers.join(', ') + '\n')
+  }
+
+  if (rewrite) {
+    curationDigestUsers = rewritten.join('')
+    store.set({ curationDigestUsers })
+  }
+
+  DigestUsersText = curationDigestUsers
+  DigestUsersCached = digestUsers
+  return digestUsers
 }
 
 export function getEditionTimeStrs () {

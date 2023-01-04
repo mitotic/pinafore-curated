@@ -1,21 +1,48 @@
 import { CURATION_SETTINGS, store } from '../_store/store.js'
 
-import { clearStore, date2hhmmISO } from './curationStore.js'
-import { clearAllCached, getSummaries, getCurrentFollows, setUserFollow, setSummary } from './curationCache.js'
+import { clearStore, offsetDaysInDate, date2hhmmISO } from './curationStore.js'
+import { clearAllCached, getSummaries, removeSummariesAfter, getCurrentFollows, setUserFollow, setSummary } from './curationCache.js'
 import { CURATION_STATUSBUFFER_STORE, CURATION_STATUSEDITION_STORE } from '../_database/constants.js'
 
-import { MAHOOT_DATA_VERSION, curationConsole, getMyUsername } from './curationGeneral.js'
+import { MAHOOT_DATA_VERSION, INTERVALS_PER_DAY, curationConsole, nextInterval, getMyUsername } from './curationGeneral.js'
 
 import { getSnowflakeDate } from './curationSnowflakeId.js'
 
-export function eraseCurationData () {
+export async function clearStatusBufferStore () {
   const { currentInstance } = store.get()
+  await clearStore(currentInstance, CURATION_STATUSBUFFER_STORE)
+}
+
+export async function clearStatusEditionStore () {
+  const { currentInstance } = store.get()
+  await clearStore(currentInstance, CURATION_STATUSEDITION_STORE)
+}
+
+export async function eraseAllCurationData () {
   clearAllCached('')
   console.log('eraseAllData: Erased data in localStorage')
-  for (const storeName of [CURATION_STATUSBUFFER_STORE, CURATION_STATUSEDITION_STORE]) {
-    clearStore(currentInstance, storeName).then((response) => { console.log('eraseAllData: Cleared ' + storeName) })
-  }
+  await clearStatusBufferStore()
+  console.log('eraseAllData: Cleared Buffer store')
+  await clearStatusEditionStore()
+  console.log('eraseAllData: Cleared Edition store')
   store.set({ curationLastSaveInterval: '', curationDataVersion: MAHOOT_DATA_VERSION })
+}
+
+export async function eraseRecentCurationData () {
+  const { curationLastSaveInterval } = store.get()
+
+  // One day back
+  let olderLastSaveInterval = offsetDaysInDate(curationLastSaveInterval, -1)
+  for (let j = 0; j < INTERVALS_PER_DAY / 2; j++) {
+    //  Half day ahead
+    olderLastSaveInterval = nextInterval(olderLastSaveInterval)
+  }
+  console.log('eraseRecentCurationData', curationLastSaveInterval, olderLastSaveInterval, new Date(olderLastSaveInterval))
+  await removeSummariesAfter(olderLastSaveInterval)
+  console.log('eraseRecentCurationData: Removed recent summaries')
+  await clearStatusEditionStore()
+  console.log('eraseRecentCurationData: Cleared Edition store')
+  store.set({ curationLastSaveInterval: olderLastSaveInterval, curationUpdatingRecent: date2hhmmISO(Date.now() - 30 * 1000) })
 }
 
 export async function exportCurationData () {

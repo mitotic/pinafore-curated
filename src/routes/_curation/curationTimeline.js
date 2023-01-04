@@ -3,31 +3,37 @@ import { database } from '../_database/database.js'
 import { getStatus } from '../_api/statuses.js'
 
 import { createSnowflakeId, getSnowflakeEpoch, getSnowflakeDate } from './curationSnowflakeId.js'
-import { hhmm2localTime, date2hhmmISO } from './curationStore.js'
+import { MOT_TAGS, MOTX_TAG, hhmm2localTime, date2hhmmISO, zeropad } from './curationStore.js'
 import { curatorReblog } from './curationUser.js'
 import { updateStatusBuffer } from './curationBuffer.js'
 
 import { PREFILL_STATUSBUFFER, getCurrentFollows, getFilter, putEditionStatus, getAllEditionStatuses } from './curationCache.js'
 
-import { nextInterval, getEditionTimeStrs, summarizeStatus, bufferStatusSummaryAsync } from './curationGeneral.js'
+import { nextInterval, getDigestUsers, getEditionTimeStrs, summarizeStatus, bufferStatusSummaryAsync } from './curationGeneral.js'
 
 import { curateSingleStatus } from './curationFilter.js'
 
 const { curationShowAllStatus } = store.get()
 
-const EDITION_TAGS = ['#motd', '#motw', '#motm', '#']
+function editionLabel (status, display) {
+  // In ASCII sort order, '@' comes after all digits, and '*' comes before digits and after '#'
+  // section names are of the form #tag or *name
+  const username = status.account.acct.toLowerCase()
+  const section = status.curation_save || '#'
 
-function editionLabel (status, section) {
-  const tag = (status.curation_save || '#').toLowerCase()
-  const j = EDITION_TAGS.indexOf(tag)
-  let label
-  if (j >= 0) {
-    label = (j < 10 ? '0' + j : j) + tag
+  let prefix = '@@'
+  let userIndex = '0000'
+  if (MOT_TAGS.includes(section.substr(1))) {
+    prefix = zeropad(0, prefix.length) + '#' + MOTX_TAG
   } else {
-    // In ASCII sort order, '@' comes after all digits
-    label = '@@' + tag
+    const digestUsers = getDigestUsers()
+    if (digestUsers[username]) {
+      userIndex = zeropad(digestUsers[username].index, userIndex.length)
+    }
   }
-  return section ? label.substr(3) : label + '@' + status.account.acct + '-' + date2hhmmISO(getSnowflakeDate(status.id))
+  // Sort by section name (beginning with # or *), then user index, then username then status time
+  const label = display ? section : prefix + section.toLowerCase() + userIndex + '@' + username + '-' + date2hhmmISO(getSnowflakeDate(status.id))
+  return label
 }
 
 let PrevStatusId = 0
@@ -87,7 +93,7 @@ export async function insertEditionStatuses (statuses, updating) {
       let prevLabel = ''
       for (const [index, editionStatus] of editionStatuses.entries()) {
         const curLabel = editionLabel(editionStatus, true)
-        const sectionName = editionName + (curLabel ? ' #' + curLabel : '')
+        const sectionName = editionName + ' ' + curLabel
         const acctName = 'DailyEdition' + (editionCount > 1 ? '' + (j + 1) : '') + curLabel.replace(/\W/g, '')
 
         const insertId = createSnowflakeId(editionTime, editionStatuses.length - index - 1)
@@ -96,7 +102,7 @@ export async function insertEditionStatuses (statuses, updating) {
         rebloggedStatus.demarcate_side = 1
         if (index === 0) {
           rebloggedStatus.demarcate_top = 1
-        } else if (curLabel !== prevLabel) {
+        } else if (curLabel.toLowerCase() !== prevLabel) {
           rebloggedStatus.demarcate_top_lite = 1
         }
 
@@ -106,7 +112,7 @@ export async function insertEditionStatuses (statuses, updating) {
 
         result.push(rebloggedStatus)
         console.log('insertEditionStatuses EDITION ENTRY', index, editionLabel(editionStatus), editionStatus, rebloggedStatus)
-        prevLabel = curLabel
+        prevLabel = curLabel.toLowerCase()
       }
     }
     result.push(status)

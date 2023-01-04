@@ -1,12 +1,10 @@
 import { store } from '../_store/store.js'
 
-import { getItem, putItem, putRawItem, keyRange, keyBefore, getAllItems, deleteAllItems, getAllKeys } from '../_curation/curationStore.js'
+import { getItem, putItem, putRawItem, keyRange, keyBefore, keyAfter, getAllItems, deleteAllItems, getAllKeys } from '../_curation/curationStore.js'
 
 import { createSnowflakeId } from '../_curation/curationSnowflakeId.js'
 
 import { CURATION_STATUSBUFFER_STORE, CURATION_STATUSEDITION_STORE } from '../_database/constants.js'
-
-const { currentInstance } = store.get()
 
 // Caches in localStorage
 
@@ -145,10 +143,12 @@ export function clearAllCached (prefix) {
 }
 
 export function putEditionStatus (status) {
+  const { currentInstance } = store.get()
   putRawItem(currentInstance, CURATION_STATUSEDITION_STORE, status)
 }
 
 export async function getAllEditionStatuses (startId, endIdMinus) {
+  const { currentInstance } = store.get()
   let statuses = []
   try {
     statuses = await getAllItems(currentInstance, CURATION_STATUSEDITION_STORE, keyRange(startId, endIdMinus))
@@ -158,7 +158,8 @@ export async function getAllEditionStatuses (startId, endIdMinus) {
   return statuses
 }
 
-export function deleteAllEditionStatuses (endIdMinus) {
+export function deleteOldEditionStatuses (endIdMinus) {
+  const { currentInstance } = store.get()
   return deleteAllItems(currentInstance, CURATION_STATUSEDITION_STORE, keyBefore(endIdMinus, true))
 }
 
@@ -194,16 +195,23 @@ export function idRangeBefore (beforeTimeStr) {
   return keyBefore(createSnowflakeId(beforeTimeStr), true)
 }
 
+export function idRangeAfter (afterTimeStr) {
+  return keyAfter(createSnowflakeId(afterTimeStr), false)
+}
+
 export async function getSummaryKey (statusId) {
+  const { currentInstance } = store.get()
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, keyRange(statusId, statusId))
 }
 
 export async function getSummary (statusId) {
+  const { currentInstance } = store.get()
   const status = await getItem(currentInstance, CURATION_STATUSBUFFER_STORE, statusId)
   return status
 }
 
 export async function getSummaries (startIntervalStr, endIntervalStr, raw) {
+  const { currentInstance } = store.get()
   let statuses = await getAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeForInterval(startIntervalStr, endIntervalStr))
 
   if (raw) {
@@ -215,18 +223,27 @@ export async function getSummaries (startIntervalStr, endIntervalStr, raw) {
 }
 
 export async function getAllSummaryKeysBefore (beforeTimeStr) {
+  const { currentInstance } = store.get()
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeBefore(beforeTimeStr))
 }
 
 export async function getAllSummaryKeysRange (startIntervalStr, endIntervalStr) {
+  const { currentInstance } = store.get()
   return await getAllKeys(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeForInterval(startIntervalStr, endIntervalStr))
 }
 
-export function removeSummaries (beforeTimeStr) {
-  deleteAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeBefore(beforeTimeStr))
+export async function removeSummariesBefore (beforeTimeStr) {
+  const { currentInstance } = store.get()
+  await deleteAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeBefore(beforeTimeStr))
+}
+
+export async function removeSummariesAfter (afterTimeStr) {
+  const { currentInstance } = store.get()
+  await deleteAllItems(currentInstance, CURATION_STATUSBUFFER_STORE, idRangeAfter(afterTimeStr))
 }
 
 export async function setSummary (id, status) {
+  const { currentInstance } = store.get()
   await putItem(currentInstance, CURATION_STATUSBUFFER_STORE, status)
 }
 

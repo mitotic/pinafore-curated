@@ -5,13 +5,13 @@ import { getWithHeaders, DEFAULT_TIMEOUT } from '../_utils/ajax.js'
 import li from 'li'
 import { scheduleCurationCleanup } from '../_database/cleanup.js'
 
-import { date2hhmmISO } from './curationStore.js'
+import { date2hhmmISO, offsetDaysInDate } from './curationStore.js'
 import { createSnowflakeId, getSnowflakeEpoch } from './curationSnowflakeId.js'
 import { computePostStats } from './curationStats.js'
 
 import { MAHOOT_DATA_VERSION, UPDATE_DELAY_SEC, PAGED_REQUEST_DELAY_SEC, RETRY_UPDATE_SEC, STATUS_REQUEST_LIMIT, nextInterval, oldestInterval, getMaxDaysOfData, summarizeStatus, bufferStatusSummarySync, getEditionTimeStrs } from './curationGeneral.js'
 
-import { getAllSummaryKeysBefore, getAllSummaryKeysRange, removeSummaries, putEditionStatus, getCurrentFollows, getFilter } from './curationCache.js'
+import { getAllSummaryKeysRange, removeSummariesBefore, putEditionStatus, deleteOldEditionStatuses, getCurrentFollows, getFilter } from './curationCache.js'
 import { curateSingleStatus } from './curationFilter.js'
 import { refreshCurationFollows } from './curationFollows.js'
 
@@ -182,10 +182,13 @@ async function saveStatuses (lastIntervalStr, statusBlock, statuses) {
         // Cleanup old statuses and cleanup buffers
         const oldestIntervalStr = oldestInterval(lastIntervalStr)
 
-        getAllSummaryKeysBefore(oldestIntervalStr).then(keys => {
-          /// console.log('saveStatuses REMOVE STATUSES', keys.length, oldestIntervalStr)
-        })
-        removeSummaries(oldestIntervalStr)
+        /// getAllSummaryKeysBefore(oldestIntervalStr).then(keys => {
+        /// console.log('saveStatuses REMOVE STATUSES', keys.length, oldestIntervalStr)
+        /// })
+        removeSummariesBefore(oldestIntervalStr)
+
+        const oldestEditionTime = offsetDaysInDate(lastIntervalStr, -2)
+        deleteOldEditionStatuses(createSnowflakeId(oldestEditionTime))
 
         scheduleCurationCleanup()
       }

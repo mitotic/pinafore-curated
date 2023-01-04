@@ -4,11 +4,13 @@ import { getItem, putItem, keyRange, keyBefore, objectStoreNames, clearStore, ge
 
 import { CACHE_PREFIX, getCurrentFollows, getUserFollow, setUserFollow, getFilter, getAllCachedKeys, clearAllCached, getCached, getAllEditionStatuses } from './curationCache.js'
 
-import { nextInterval, getHashtags } from './curationGeneral.js'
+import { nextInterval, getHashtags, getDigestUsers } from './curationGeneral.js'
 import { computePostStats } from './curationStats.js'
 import { updateStatusBuffer, CurationCounter } from './curationBuffer.js'
 
 import { refreshCurationFollows } from './curationFollows.js'
+
+import { eraseRecentCurationData, eraseAllCurationData } from './curationData.js'
 
 import { createSnowflakeId, getSnowflakeDate } from './curationSnowflakeId.js'
 
@@ -20,9 +22,13 @@ if (!testHasLocalStorage()) {
   window.alert('curationTest.js: No local storage on browser!')
 }
 
-const { currentInstance, verifyCredentials } = store.get()
+window.eraseRecentCurationData = eraseRecentCurationData
+
+window.eraseAllCurationData = eraseAllCurationData
 
 window.CurationCounter = CurationCounter
+
+window.getDigestUsers = getDigestUsers
 
 window.getHashtags = getHashtags
 
@@ -53,6 +59,8 @@ window.myRefreshCurationFollows = function () {
 }
 
 window.updateStatusBuffer = function (callType) {
+  const { currentInstance, verifyCredentials } = store.get()
+
   if (!verifyCredentials[currentInstance]) {
     console.log('window.updateStatusBuffer NO CREDENTIALS')
     return
@@ -66,14 +74,20 @@ window.myComputePostStats = function () {
 
 // FOR TESTING
 
-window.getAllEditionStatuses = function (startTimeHHMM, endTimeHHMM) {
+window.getAllEditionStatuses = function () {
+  return getAllEditionStatuses(0, createSnowflakeId(Date.now())).then((x) => console.log('getAllEditionStatuses: statuses', x.map(y => y.account.acct + (y.curation_save || '')), x))
+}
+
+window.getRecentEditionStatuses = function (startTimeHHMM, endTimeHHMM) {
+  startTimeHHMM = startTimeHHMM || new Date().toLocaleString('en-GB', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }).slice(-8, -3)
+  endTimeHHMM = endTimeHHMM || startTimeHHMM
   const endTime = hhmm2localTime(endTimeHHMM)
   const endId = createSnowflakeId(endTime)
-  const startTime = hhmm2localTime(startTimeHHMM, endId)
+  const startTime = hhmm2localTime(startTimeHHMM, endTime.getTime())
   const startId = createSnowflakeId(startTime)
-  console.log('getAllEditionStatuses', startTime, endTime)
+  console.log('getRecentEditionStatuses', startTimeHHMM, endTimeHHMM, startTime, endTime)
 
-  return getAllEditionStatuses(startId, endId).then((x) => console.log('getAllEditionStatuses: statuses', x))
+  return getAllEditionStatuses(startId, endId).then((x) => console.log('getAllEditionStatuses: statuses', x.map(y => y.account.acct + (y.curation_save || '')), x))
 }
 
 window.getAllCachedKeys = function (prefix) {
