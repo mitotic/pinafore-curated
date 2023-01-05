@@ -74,13 +74,9 @@ Then select ``Mahoot``, which takes you to the curation settings page:
 
 The single most important setting for Mahoot is the number of posts you wish to view per day (*on the average*). This number (along with other factors) is used to determine the probability of displaying each post. The screenshot shows a value of 330. Since this is a "soft" limit that is imposed statistically, on days that your followees post more, you will see more than 330 posts displayed. On other days, it will be less than 330.
 
-When you start using Mahoot, it will begin to analyze your feed and compute the statistics of the posting behavior of your followees. Initially, Mahoot usually has less than a day's worth of data to analyze but it will slowly accumulate data as you continue to use it. You can specify the maximum number of *days of data to analyze* in the settings. The default is 30 days.
+Another basic setting is the *low-grade secret key*. Change it to something different from the default value, but the new value doesn't need to be terribly secret or even memorable. Its only purpose is to uniquely seed the [random number generator](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#probabilistic-post-selection) used to compute the probability of displaying posts.
 
-Another setting is the *low-grade secret key*. Change it to something different from the default value, but the new value doesn't need to be terribly secret or even memorable. Its only purpose is to uniquely seed the [random number generator](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#probabilistic-post-selection) used to compute the probability of displaying posts.
-
-The final basic setting is *disable curation*. Use it if you encounter buggy behavior and wish to temporarily disable the Mahoot curation extensions to the Pinafore client.
-
-For settings involving numbers or text, click the *Update* button to save the changes (see below). Checkbox settings take effect immediately, but you may need to reload the web page for some changes to become visible.
+For settings involving numbers or text, click the *Update* button further down to save the changes. Checkbox settings (see below) take effect immediately, but you may need to reload the web page for some changes to become visible.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/UpdateButton.png"
@@ -147,13 +143,17 @@ Typically, only a fraction of your followees will need to have their amplifactio
 
 Mahoot has several additional settings to control the appearance of your home timeline:
 
-- ``Display timestamp/counter for feed``: This displays a timestamp for each post along with a counter (``hh:mm#nnn``) for older posts. The counter is reset to zero at midnight local time so that you can easily track how many posts have appeared in your timeline since then. (See screenshot for the ``Show Replay Context`` option below; the counter will not appear for recent posts because Mahoot collates posts periodically, about every two hours.)
+- ``Display timestamp/counter for feed``: This displays a timestamp for each post along with a counter (``hh:mm#nnn``) for older posts. The counter is reset to zero at midnight local time so that you can easily track how many posts have appeared in your timeline since then. (See screenshot for the ``Show Replay Context`` experimental option below; the counter will not appear for recent posts because Mahoot collates posts periodically, about every two hours.)
 
 - ``Show dropped posts``: By default, Mahoot does not show any posts that are dropped by its probabilistic curation algorithm. Enabling this option will show those posts, de-emphasized by graying them out. Clicking on the faucet icon will tell you why the post was dropped. This allows you to check how the curation algorithm is working. (*Note: You may need to reload the page for this option to take effect.*)
 
+- ``Hide self replies from home timeline``: Another experimental option that hides replies to an original post by the original poster (effectively displaying only the top of a thread).
+
 - ``Hide duplicate boosts``: Another experimental option that will hide display of posts that have already been displayed as boosts. (This is a variation of the standard ``Group boosts in timelines`` option in Mastodon Preferences>Other.)
 
-- ``Hide self replies from home timeline``: Another experimental option that hides replies to an original post by the original poster (effectively displaying only the top of a thread).
+- ``Disable curation``: Use this setting if you encounter buggy behavior and wish to temporarily disable the Mahoot curation extensions to the Pinafore client.
+
+- ``Days of data to analyze``: When you start using Mahoot, it will begin to analyze your feed and compute the statistics of the posting behavior of your followees. Initially, Mahoot usually has less than a day's worth of data to analyze but it will slowly accumulate data as you continue to use it. This setting allows you to specify the maximum number of days to analyze. The default is 30 days. (This setting is capped at 60 days to avoid computational overload.)
 
 
 
