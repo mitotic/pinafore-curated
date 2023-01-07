@@ -7,11 +7,6 @@
       <input type="text" inputmode="numeric" autocapitalize="none" spellcheck="false" id="curationViewsPerDay"
              bind:value='$curationViewsPerDay' placeholder="count of views"
       >
-    <br>
-    <label for="curationSecretKey">Low-grade secret key:</label>
-      <input type="text" inputmode="text" autocapitalize="none" spellcheck="false" id="curationSecretKey"
-             bind:value='$curationSecretKey' placeholder="any string"
-      >
     <hr>
 
     <h2>Advanced <a href="https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md#advanced-settings">(?)</a></h2>
@@ -43,6 +38,11 @@
     <label for="curationDaysOfData">Days of data to analyze:</label>
       <input type="text" inputmode="numeric" autocapitalize="none" spellcheck="false" id="curationDaysOfData"
              bind:value='$curationDaysOfData' placeholder="count of views"
+      >
+    <br>
+    <label for="curationSecretKey">Seed string for randomization:</label>
+      <input type="text" inputmode="text" autocapitalize="none" spellcheck="false" id="curationSecretKey"
+             bind:value='$curationSecretKey' placeholder="any string"
       >
     <hr>
 
@@ -301,7 +301,7 @@
         const endTime = new Date(nextInterval($curationLastSaveInterval)).toLocaleString()
         const stats1 = `Expected average daily views = ${$curationViewsPerDay}`
         const stats2 = `Default Mahoot Number=${userStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
-        const stats3 = `Analyzed ${userStats.status_total} posts by ${Object.keys(userEntries).length} followees over last ${userStats.day_total.toFixed(2)} days ending ${endTime}`
+        const stats3 = `Analyzed ${userStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${userStats.day_total.toFixed(2)} days ending ${endTime}`
         return [stats1, stats2, stats3]
       },
 

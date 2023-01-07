@@ -47,7 +47,7 @@ const persistedState = {
   curationViewsPerDay: 300,
   curationDaysOfData: 30,
   curationEditionTime: '', // hh:mm value (local time) TODO: up to 4 editions per day
-  curationSecretKey: 'change_it', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
+  curationSecretKey: 'default', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
   curationDisabled: false,
   curationShowTime: false,
   curationShowAllStatus: false,
@@ -90,6 +90,7 @@ const nonPersistedState = {
   statusModifications: {},
   verifyCredentials: {},
   curationFilterTime: '',
+  curationPostsPerDay: '*',
   curationUpdatingRecent: '',
   curationUpdatingBuffer: '',
   curationUpdatingMessage: ''

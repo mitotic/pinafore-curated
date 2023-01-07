@@ -4,6 +4,19 @@
      TODO: this is a bit hacky due to code duplication
  -->
 <h1 class="sr-only">{headingLabel}</h1>
+<div class="mahoot-timeline-header">
+  <div class="mahoot-timeline-header-left">
+    <a href="settings/curation">{$curationPostsPerDay}</a>
+  </div>
+  <a href="/settings/curation">
+  <svg class="mahoot-icon-button" ref:svg>
+    <use xlink:href="/icons.svg#fa-faucet" />
+  </svg>
+  </a>
+  <div class="mahoot-timeline-header-right">
+    <a href="/settings/curation">{$curationViewsPerDay}</a>
+  </div>
+</div>
 <div class="timeline-home-page" aria-busy={hideTimeline}>
   {#if hidePage}
     <LoadingPage />
@@ -25,6 +38,40 @@
   .timeline-home-reveal-container {
     transition: opacity 0.2s linear; /* main page reveal */
   }
+  .mahoot-timeline-header {
+    display: flex;
+    justify-content: right;
+  }
+
+  .mahoot-timeline-header-left, .mahoot-timeline-header-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mahoot-timeline-header-left a {
+    align-self: flex-start;
+    padding-top: 5px;
+  }
+
+  .mahoot-timeline-header-right a {
+    align-self: flex-end;
+    padding-right: 4px;
+  }
+
+  .mahoot-icon-button {
+    padding: 4px 8px;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    width: 24px;
+    height: 24px;
+    fill: var(--action-button-fill-color);
+  }
+
 </style>
 <script>
   import LazyTimeline from './timeline/LazyTimeline.html'

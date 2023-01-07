@@ -140,6 +140,7 @@ export async function computePostStats () {
       time_str: finalIntervalStr,
       day_total: dayTotal,
       status_total: processedStatuses,
+      status_daily: processedStatuses / dayTotal,
       editioned_daily: savedTotal / dayTotal,
       dropped_daily: droppedCount / dayTotal,
       shown_daily: shownTotal / dayTotal,
@@ -150,7 +151,7 @@ export async function computePostStats () {
 
     setFilter([{ ...globalStats, ...moreGlobalStats }, userFilter])
 
-    store.set({ curationFilterTime: new Date() + '' })
+    store.set({ curationFilterTime: new Date() + '', curationPostsPerDay: globalStats.status_daily.toFixed(0) })
   }
 
   return statusCounter
