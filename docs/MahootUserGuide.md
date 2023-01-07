@@ -49,8 +49,14 @@ You will need to give Mahoot/Pinafore permission to access your Mastodon account
 <em>Mahoot permissions page</em>
 </p>
 
-After you login and give permissions, you will reach the Mastodon Home Timeline. This is your primary feed. Mahoot makes several modifications to your Home Timeline for curation purposes.
+After you login and give permissions, you will reach the Mastodon Home Timeline (shown below). This is your primary feed. Mahoot makes several modifications to your Home Timeline for curation purposes. At the top right corner of this page, Mahoot shows the number posts received (daily) in the timeline and the number that are displayed after curation.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootHomeTimeline.png"
+     alt="Mahoot home timeline">
+<br>
+<em>Mahoot home timeline showing curation statistics at the top right corner</em>
+</p>
 
 ## Basic settings
 
@@ -72,11 +78,9 @@ Then select ``Mahoot``, which takes you to the curation settings page:
 <em>Mahoot basic settings</em>
 </p>
 
-The single most important setting for Mahoot is the number of posts you wish to view per day (*on the average*). This number (along with other factors) is used to determine the probability of displaying each post. The screenshot shows a value of 330. Since this is a "soft" limit that is imposed statistically, on days that your followees post more, you will see more than 330 posts displayed. On other days, it will be less than 330.
+The only basic setting for Mahoot is the number of posts you wish to view per day (*on the average*). This number (along with other factors) is used to determine the probability of displaying each post. The screenshot shows a value of 330. Since this is a "soft" limit that is imposed statistically, on days that your followees post more, you will see more than 330 posts displayed. On other days, it will be less than 330.
 
-Another basic setting is the *low-grade secret key*. Change it to something different from the default value, but the new value doesn't need to be terribly secret or even memorable. Its only purpose is to uniquely seed the [random number generator](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#probabilistic-post-selection) used to compute the probability of displaying posts.
-
-For settings involving numbers or text, click the *Update* button further down to save the changes. Checkbox settings (see below) take effect immediately, but you may need to reload the web page for some changes to become visible.
+For settings like this involving numbers or text, click the *Update* button further down to save the changes. (Checkbox settings take effect immediately, but you may need to reload the web page for some changes to become visible.)
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/UpdateButton.png"
@@ -155,7 +159,7 @@ Mahoot has several additional settings to control the appearance of your home ti
 
 - ``Days of data to analyze``: When you start using Mahoot, it will begin to analyze your feed and compute the statistics of the posting behavior of your followees. Initially, Mahoot usually has less than a day's worth of data to analyze but it will slowly accumulate data as you continue to use it. This setting allows you to specify the maximum number of days to analyze. The default is 30 days. (This setting is capped at 60 days to avoid computational overload.)
 
-
+- ``Seed string for randomization``: Mahoot generates "random" numbers to [select which posts to display](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootProtocol.md#probabilistic-post-selection). These "random" numbers depend upon the serial (id) number of each post and a string value ("seed") which is set to "default" initially. You can change the seed to a different value if you think a rogue Mastodon server might adjust the serial numbers of posts to control the random numbers (an unlikely scenario). (Whatever the seed value, it should be the same across all your Mastodon clients to ensure that the same random subset of posts is displayed.)
 
 ## Caveats
 
