@@ -68,7 +68,7 @@ export async function computePostStats () {
 
   let processedStatuses = 0
 
-  const finalIntervalStr = nextInterval(curationLastSaveInterval)
+  const finalIntervalEnd = nextInterval(curationLastSaveInterval)
 
   let intervalStr = oldestInterval(curationLastSaveInterval)
 
@@ -85,20 +85,34 @@ export async function computePostStats () {
   userAccum[myUsername] = newUserAccum({ userEntry })
 
   let intervalCount = 0
-  while (intervalStr < finalIntervalStr) {
+  let intervalStats = []
+  while (intervalStr < finalIntervalEnd) {
     const nextIntervalStr = nextInterval(intervalStr)
     const statusSummaries = await getSummaries(intervalStr, nextIntervalStr)
 
-    /// console.log('computePostStats ANALYZE', intervalCount, statusSummaries.length, intervalStr, nextIntervalStr, finalIntervalStr)
+    /// console.log('computePostStats ANALYZE', intervalCount, statusSummaries.length, intervalStr, nextIntervalStr, finalIntervalEnd)
+    intervalStr = nextIntervalStr
 
+    if (!statusSummaries.length) {
+      // Skip empty interval (assuming missed data)
+      continue
+    }
+
+    let shownInterval = 0
     for (const summary of statusSummaries) {
       const modStatus = curateSingleStatus(summary, currentInstance, currentFollows, currentStats, currentProbs, editionCount)
 
       const statusDate = getSnowflakeDate(summary.id).getDate()
 
+      if (!modStatus.curation_dropped || modStatus.curation_save) {
+        // Count of shown statuses for interval
+        shownInterval += 1
+      }
+
       if (!prevDate) {
         prevDate = statusDate
       } else if (prevDate !== statusDate) {
+        // Reset counters for new date
         prevDate = statusDate
         newDate = true
         savedCount = 0
@@ -127,8 +141,8 @@ export async function computePostStats () {
 
     computeIntervalStats(currentFollows, statusSummaries, summaryCache, statusStats)
     processedStatuses += statusSummaries.length
-    intervalCount += statusSummaries.length ? 1 : 0
-    intervalStr = nextIntervalStr
+    intervalCount += 1
+    intervalStats.push({ shownInterval, statusInterval: statusSummaries.length })
   }
 
   if (intervalCount) {
@@ -136,22 +150,27 @@ export async function computePostStats () {
 
     const dayTotal = intervalCount / INTERVALS_PER_DAY
 
+    const lastDayStats = intervalStats.slice(-INTERVALS_PER_DAY)
+    const lastDayFac = INTERVALS_PER_DAY / lastDayStats.length
     const globalStats = {
-      time_str: finalIntervalStr,
+      time_str: finalIntervalEnd,
       day_total: dayTotal,
       status_total: processedStatuses,
       status_daily: processedStatuses / dayTotal,
       editioned_daily: savedTotal / dayTotal,
       dropped_daily: droppedCount / dayTotal,
       shown_daily: shownTotal / dayTotal,
-      high_boosted_daily: highBoostTotal / dayTotal
+      high_boosted_daily: highBoostTotal / dayTotal,
+      shown_lastday: lastDayFac * lastDayStats.reduce((acc, x) => acc + x.shownInterval, 0),
+      status_lastday: lastDayFac * lastDayStats.reduce((acc, x) => acc + x.statusInterval, 0)
     }
 
-    const [moreGlobalStats, userFilter] = computeUserProbabilities(currentFollows, intervalCount, finalIntervalStr, statusStats, userAccum)
+    const [moreGlobalStats, userFilter] = computeUserProbabilities(currentFollows, intervalCount, finalIntervalEnd, statusStats, userAccum)
 
     setFilter([{ ...globalStats, ...moreGlobalStats }, userFilter])
 
     store.set({ curationFilterTime: new Date() + '', curationPostsPerDay: globalStats.status_daily.toFixed(0) })
+    console.log('computePostStats; STATS', globalStats, moreGlobalStats)
   }
 
   return statusCounter
@@ -240,7 +259,7 @@ function accumulateStatusCounts (currentFollows, userAccum, summaryCache, status
         accum.motx_total += 1
       } else if (priority) {
         accum.priority_total += 1
-      } else if (!curationHideSelfReplies || !summaryInfo.self_reply) {
+      } else if (!(curationHideSelfReplies && summaryInfo.self_reply)) {
         // Do not count plain self replies, if they are not displayed)
         accum.post_total += 1
       }
@@ -250,7 +269,7 @@ function accumulateStatusCounts (currentFollows, userAccum, summaryCache, status
   }
 }
 
-function computeUserProbabilities (currentFollows, intervalCount, finalIntervalStr, statusStats, userAccum) {
+function computeUserProbabilities (currentFollows, intervalCount, finalIntervalEnd, statusStats, userAccum) {
   const { curationViewsPerDay } = store.get()
   const myUsername = getMyUsername()
 
@@ -262,7 +281,7 @@ function computeUserProbabilities (currentFollows, intervalCount, finalIntervalS
   }
 
   const dayTotal = intervalCount / INTERVALS_PER_DAY
-  const finalIntervalTime = new Date(finalIntervalStr)
+  const finalIntervalEndTime = new Date(finalIntervalEnd)
   const statPeriodMS = intervalCount * UPDATE_INTERVAL_MINUTES * 60 * 1000
 
   const accumEntries = Object.entries(userAccum)
@@ -277,7 +296,7 @@ function computeUserProbabilities (currentFollows, intervalCount, finalIntervalS
       accum.weight = userEntry.amp_factor
 
       // Also weight followee by how long they have been followed over the analysis period (0.1 ... 1)
-      accum.follow_weight = Math.min(1, Math.max(0.1, (finalIntervalTime.getTime() - (new Date(accum.followed_at)).getTime()) / statPeriodMS))
+      accum.follow_weight = Math.min(1, Math.max(0.1, (finalIntervalEndTime.getTime() - (new Date(accum.followed_at)).getTime()) / statPeriodMS))
     } else {
       // Do not count unfollowed user (or self) posts/boosts
       // TODO: search tags of the post and treat tag follows like user follows

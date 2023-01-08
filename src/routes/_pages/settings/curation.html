@@ -289,7 +289,7 @@
         return result.length ? '[' + result.join(', ') + ']' : ''
       },
 
-      summaryStats: ({ $curationViewsPerDay, $curationDaysOfData, $curationDisabled, $curationLastSaveInterval, $curationFilterTime, $curationAnonymize }) => {
+      summaryStats: ({ $curationViewsPerDay, $curationDaysOfData, $curationDisabled, $curationLastSaveInterval, $curationFilterTime, $curationAnonymize, $curationDevMode }) => {
         if ($curationDisabled) {
           return ['Curation DISABLED', '', '']
         }
@@ -301,7 +301,11 @@
         const endTime = new Date(nextInterval($curationLastSaveInterval)).toLocaleString()
         const stats1 = `Expected average daily views = ${$curationViewsPerDay}`
         const stats2 = `Default Mahoot Number=${userStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
-        const stats3 = `Analyzed ${userStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${userStats.day_total.toFixed(2)} days ending ${endTime}`
+        let stats3 = `Analyzed ${userStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${userStats.day_total.toFixed(2)} days ending ${endTime}.`
+        if ($curationDevMode) {
+          stats3 += ` (Last day: received=${userStats.status_lastday}, shown=${userStats.shown_lastday})`
+        }
+
         return [stats1, stats2, stats3]
       },
 

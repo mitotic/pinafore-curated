@@ -3,11 +3,14 @@ export default {
   appName: 'Pinafore+Mahoot',
   appDescription: 'An alternative web client for Mastodon with curation features.',
   homeDescription: `
+    <center><img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootLogo1.png" width=277 height=170></center>
     <p>
-      Mahoot is a working <em>proof-of-concept</em> software that implements a curation protocol for the decentralized microblogging network
+      Mahoot is a working <em>proof-of-concept</em> software that implements a client-side curation protocol for the decentralized microblogging network
       <a rel="noopener" target="_blank" href="https://joinmastodon.org">Mastodon</a>. It provides fine-grained control on how you consume Mastodon content.
     </p> <p>
-      This is a stand-alone web client and will not interfere with any other clients that you use to access Mastodon. The curation protocol
+The basic features provide control over how many posts you view per day and who they are from. Advanced features allow you to create daily digest editions and prioritize posts for viewing.
+    </p> <p>
+      This software is a stand-alone web client that will not interfere with any other clients that you use to access Mastodon. The curation protocol
       is implemented as modifications to <a rel="noopener" target="_blank" href="https://github.com/nolanlawson/pinafore">Pinafore</a>,
       an alternative web client for Mastodon.
     </p> <p>

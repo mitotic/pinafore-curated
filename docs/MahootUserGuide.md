@@ -1,6 +1,6 @@
 # Mahoot User Guide
 
-Version 0.3.11
+Version 0.3.12
 
 - [Getting started](#getting-started)
 
@@ -49,13 +49,13 @@ You will need to give Mahoot/Pinafore permission to access your Mastodon account
 <em>Mahoot permissions page</em>
 </p>
 
-After you login and give permissions, you will reach the Mastodon Home Timeline (shown below). This is your primary feed. Mahoot makes several modifications to your Home Timeline for curation purposes. At the top right corner of this page, Mahoot shows the number posts received (daily) in the timeline and the number that are displayed after curation.
+After you login and give permissions, you will reach the Mastodon Home Timeline (shown below). This is your primary feed. Mahoot makes several modifications to the feed your Home Timeline for curation purposes. At the top right corner of this page, it shows some summary curation info.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootHomeTimeline.png"
      alt="Mahoot home timeline">
 <br>
-<em>Mahoot home timeline showing curation statistics at the top right corner</em>
+<em>Mahoot Home Timeline showing curation statistics at the top right corner: The average number posts received daily in the timeline (left) and the number that are actually displayed after curation (right)</em>
 </p>
 
 ## Basic settings
@@ -203,16 +203,27 @@ This feature is inspired by newspapers, where you get information every morning 
 
 You don't have to wait a whole day to read a new digest edition in your feed. The ``Digest edition time(s)`` option (see Experimental settings above) allows you to schedule one or more local times (``hh:mm``) when you wish to display digests or "editions" of selected posts from your timeline. For example, you can choose to have a *Morning Edition* displayed at 08:00 and an *Afternoon edition* at 15:00.
 
-The ``Username#tags for auto digest`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. (More sophisticated ways to format editions will be available in the future.)
-
-*Note*: Empty editions will appear as a a thick line.
-
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootEdition1.png"
      alt="Mahoot edition example">
 <br>
-<em>Mahoot edition example</em>
+<em>Mahoot simple edition example.</em>
 </p>
+
+The ``Username#tags for auto digest`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. Here's a sample edition format:
+
+    user1, blogger@server2#motx, ...
+    *News
+    journal@server3, reporter@server4#politics, ...
+    *Science
+    scientist@server5#climate, doctor@server6#motx, ...
+    *Opinion
+    pundit@server7, opinionated@server8, ...
+
+Editions can be considered as a single-feed alternative to Mastodon Lists. More sophisticated ways to format editions can be expected in the future.
+- Note 1: Empty editions will appear as just a thick line
+- Note 2: For users on your server, ``@server`` is omitted from the username
+- Note 3: Suffix ``#motx`` indicates all periodic posts from the user should be inlcuded in the edition, as explained below
 
 
 ### Periodic posts (message of the day/week/month)
