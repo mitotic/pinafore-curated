@@ -1,0 +1,132 @@
+<ModalDialog
+  {id}
+  {label}
+  {title}
+  shrinkWidthToFit={true}
+  background="var(--main-bg)"
+>
+  <div class="mahoot-settings-container">
+    <svg id="mahoot-settings-icon-button" class="mahoot-settings-icon-button" ref:svg>
+    <use xlink:href="/icons.svg#fa-gear-alt" />
+    </svg>
+  <a href="/settings/curation" class="mahoot-settings-label" on:click="onSettings(event)">Change curation settings</a></div>
+  <GenericDialogList selectable={false} {items} on:click="onClick(event)"/>
+</ModalDialog>
+<style>
+  .mahoot-settings-container {
+    width: 100%;
+    display: flex;
+    font-size: 1.5em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .mahoot-settings-icon-button {
+    display: inline-block;
+    padding: 4px 8px;
+    background: none;
+    border: none;
+    align-self: flex-start;
+    cursor: pointer;
+    pointer-events: auto;
+    width: 24px;
+    height: 24px;
+    padding-left: 25px;
+    fill: var(--action-button-fill-color);
+  }
+  .mahoot-settings-label {
+   padding-left: 10px; 
+  }
+</style>
+<script>
+import ModalDialog from './ModalDialog.html'
+import { store } from '../../../_store/store.js'
+import GenericDialogList from './GenericDialogList.html'
+import { show } from '../helpers/showDialog.js'
+import { close } from '../helpers/closeDialog.js'
+
+import { getFilter } from '../../../_curation/curationCache.js'
+import { getLastEditionTimes, insertEditionNow } from '../../../_curation/curationEditions.js'
+import { updateEditionStats } from '../../../_curation/curationTimeline.js'
+import { getEditionTimeStrs } from '../../../_curation/curationGeneral.js'
+
+export default {
+  oncreate () { updateEditionStats() },
+  data: () => ({
+    supportsWebShare: process.browser && typeof navigator.share === 'function'
+  }),
+  computed: {
+    isDevMode: ({ $curationDevMode }) => {
+      return $curationDevMode
+    },
+    hasEditions: ({ $curationEditionTime }) => {
+      return getEditionTimeStrs().length
+    },
+    showLabel: ({ $curationEditionTime }) => {
+      const [lastEdition] = getLastEditionTimes()
+      return lastEdition ? 'Show ' + lastEdition + ' edition now' : ''
+    },
+    globalStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
+    postsLabel: ({ globalStats }) => globalStats ? 'Avg daily posts: ' + globalStats.status_daily.toFixed(0) : '',
+    viewsLabel: ({ globalStats, $curationViewsPerDay }) => globalStats ? 'Avg daily views: ' + globalStats.shown_daily.toFixed(0) + ' (limit: ' + $curationViewsPerDay + ')' : '',
+    editionsLabel: ({ $curationEditionStats }) => 'Editions: ' + $curationEditionStats,
+    lastDayLabel: ({ globalStats }) => 'Dev: LastDayStats: ' + globalStats.shown_lastday.toFixed(0) + '/' + globalStats.status_lastday.toFixed(0),
+    items: ({
+      isDevMode, hasEditions, postsLabel, viewsLabel, editionsLabel, showLabel, lastDayLabel
+    }) => ([
+      postsLabel && {
+        key: 'posts',
+        label: postsLabel,
+        icon: ''
+      },
+      viewsLabel && {
+        key: 'views',
+        label: viewsLabel,
+        icon: ''
+      },
+      editionsLabel && {
+        key: 'editions',
+        label: editionsLabel,
+        icon: ''
+      },
+      hasEditions && showLabel && {
+        key: 'showlastedition',
+        label: showLabel,
+        icon: '#fa-newspaper'
+      },
+      isDevMode && lastDayLabel && {
+        key: 'lastdaystats',
+        label: lastDayLabel,
+        icon: ''
+      }
+    ].filter(Boolean))
+  },
+  components: {
+    ModalDialog,
+    GenericDialogList
+  },
+  store: () => store,
+  methods: {
+    show,
+    close,
+    onClick (item) {
+      switch (item.key) {
+        case 'settings':
+          location.href = '/settings/curation'
+          return
+        case 'showlastedition':
+          return this.onShowLastEdition()
+      }
+    },
+    onSettings () {
+      console.log('onSettings')
+      this.close()
+      return true
+    },
+    async onShowLastEdition () {
+      const [lastEdition, prevEdition] = getLastEditionTimes()
+      insertEditionNow(lastEdition, prevEdition)
+      this.close()
+    }
+  }
+}
+</script>

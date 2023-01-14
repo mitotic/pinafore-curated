@@ -4,19 +4,19 @@
      TODO: this is a bit hacky due to code duplication
  -->
 <h1 class="sr-only">{headingLabel}</h1>
+{#if (!$curationDisabled)}
 <div class="mahoot-timeline-header">
   <div class="mahoot-timeline-header-left">
-    <a href="settings/curation">{$curationPostsPerDay}</a>
+    <span>{$curationPostsPerDay}</span>
   </div>
-  <a href="/settings/curation">
-  <svg class="mahoot-icon-button" ref:svg>
+  <svg id="mahoot-home-icon-button" class="mahoot-home-icon-button" ref:svg>
     <use xlink:href="/icons.svg#fa-faucet" />
   </svg>
-  </a>
   <div class="mahoot-timeline-header-right">
-    <a href="/settings/curation">{$curationViewsPerDay}</a>
+    <span>{$curationViewsPerDay}</span>
   </div>
 </div>
+{/if}
 <div class="timeline-home-page" aria-busy={hideTimeline}>
   {#if hidePage}
     <LoadingPage />
@@ -49,23 +49,24 @@
     align-items: center;
   }
 
-  .mahoot-timeline-header-left a {
+  .mahoot-timeline-header-left span {
     align-self: flex-start;
     padding-top: 5px;
   }
 
-  .mahoot-timeline-header-right a {
+  .mahoot-timeline-header-right span {
     align-self: flex-end;
     padding-right: 4px;
   }
 
-  .mahoot-icon-button {
+  .mahoot-home-icon-button {
     padding: 4px 8px;
     background: none;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     pointer-events: auto;
     width: 24px;
     height: 24px;
@@ -80,12 +81,16 @@
   import LazyComposeBox from './compose/LazyComposeBox.html'
   import { formatIntl } from '../_utils/formatIntl.js'
 
+  import { registerClickDelegate } from '../_utils/delegate.js'
+  import { importShowCurateHomeDialog } from './dialog/asyncDialogs/importShowCurateHomeDialog.js'
+
   export default {
     oncreate () {
       this.store.set({
         timelineInitialized: false,
         timelinePreinitialized: false
       })
+      registerClickDelegate(this, 'mahoot-home-icon-button', (e) => this.onCurateClick(e))
     },
     computed: {
       hidePage: ({ $timelineInitialized, $timelinePreinitialized }) => !$timelineInitialized && !$timelinePreinitialized,
@@ -97,6 +102,12 @@
       LazyComposeBox,
       LazyTimeline,
       LoadingPage
+    },
+    methods: {
+      async onCurateClick (event) {
+        const showCurateHomeDialog = await importShowCurateHomeDialog()
+        showCurateHomeDialog({})
+      }
     }
   }
 </script>

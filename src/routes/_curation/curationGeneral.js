@@ -1,6 +1,6 @@
 import { store } from '../_store/store.js'
 
-import { offsetDaysInDate, nextTimeInterval, hhmm2localTime } from './curationStore.js'
+import { zeropad, offsetDaysInDate, nextTimeInterval } from './curationStore.js'
 
 import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
@@ -211,25 +211,43 @@ export function getDigestUsers () {
 
 export function getEditionTimeStrs () {
   const { curationEditionTime } = store.get()
-  let editionTimeStrs = []
-  let editionTimes = []
 
-  if (curationEditionTime) {
-    let invalid = ''
-    try {
-      editionTimeStrs = curationEditionTime.split(',').map(hhmm => hhmm.trim())
-      editionTimes = editionTimeStrs.map(hhmm => hhmm2localTime(hhmm))
-      invalid = editionTimes.some(time => !time) && 'One or more time(s) not valid ' + editionTimes
-    } catch (err) {
-      invalid = 'error ' + err.message
-    }
-    if (invalid) {
-      console.log('getEditionTimeStr: Invalid edition time', curationEditionTime, invalid)
-      if (curationEditionTime && !curationEditionTime.startsWith('Invalid')) {
-        store.set({ curationEditionTime: 'Invalid: ' + curationEditionTime })
+  if (!curationEditionTime) {
+    return []
+  }
+
+  const timeStrs = curationEditionTime.split(',').map(hhmm => hhmm.replace(/\s+/g, '')).filter(x => x)
+
+  let invalid = false
+  const editionTimeStrs = []
+  for (const timeStr of timeStrs) {
+    const match = timeStr.match(/^(\d+):(\d+)$/)
+    if (match) {
+      const hhmm = zeropad(parseInt(match[1]) % 24) + ':' + zeropad(parseInt(match[2]) % 60)
+      if (!editionTimeStrs.includes(hhmm)) {
+        editionTimeStrs.push(hhmm)
       }
+    } else {
+      editionTimeStrs.push('*' + timeStr)
+      invalid = true
     }
   }
+
+  editionTimeStrs.sort()
+  const modEditionTime = editionTimeStrs.join(',')
+
+  if (invalid) {
+    if (!curationEditionTime.startsWith('Invalid')) {
+      store.set({ curationEditionTime: 'Invalid: ' + modEditionTime })
+    }
+    console.log('getEditionTimeStrs: Invalid edition time', curationEditionTime, modEditionTime)
+    return []
+  }
+
+  if (modEditionTime !== curationEditionTime) {
+    store.set({ curationEditionTime: modEditionTime })
+  }
+
   return editionTimeStrs
 }
 

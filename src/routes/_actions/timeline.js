@@ -17,7 +17,7 @@ import li from 'li'
 
 const byId = _ => _.id
 
-async function storeFreshTimelineItemsInDatabase (instanceName, timelineName, items) {
+export async function storeFreshTimelineItemsInDatabase (instanceName, timelineName, items) {
   await database.insertTimelineItems(instanceName, timelineName, items)
   if (timelineName.startsWith('status/')) {
     // For status threads, we want to be sure to update the favorite/reblog counts even if
@@ -150,7 +150,7 @@ async function fetchTimelineItems (instanceName, accessToken, timelineName, onli
   return { items, stale }
 }
 
-async function addTimelineItems (instanceName, timelineName, items, stale) {
+export async function addTimelineItems (instanceName, timelineName, items, stale) {
   console.log('addTimelineItems, length:', items.length)
   mark('addTimelineItemSummaries')
   const newSummaries = items.map(item => timelineItemToSummary(item, instanceName))

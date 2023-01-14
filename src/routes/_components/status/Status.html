@@ -89,28 +89,29 @@
    }
 
   .status-article.status-demarcate-top-heavy {
-    border-top: 5px solid rgb(140,0,0);
+    border-top: 5px solid;
   }
 
   .status-article.status-demarcate-top-lite {
-    border-top: 2px dotted rgb(140,0,0);
+    border-top: 4px dotted;
   }
 
   .status-article.status-demarcate-top {
-    border-top: 3px solid rgb(140,0,0);
+    border-top: 3px solid;
     border-top-left-radius: 25px;
     border-top-right-radius: 25px;
   }
 
   .status-article.status-demarcate-bottom {
-    border-bottom: 3px solid rgb(140,0,0);
+    border-bottom: 3px solid;
     border-bottom-left-radius: 25px;
     border-bottom-right-radius: 25px;
   }
 
   .status-article.status-demarcate-side {
-    border-left: 3px solid rgb(140,0,0);
-    border-right: 3px solid rgb(140,0,0);
+    border-left: 2px solid;
+    border-right: 2px solid;
+    box-shadow: inset 0 0 8px;
   }
 
   .status-article.status-in-timeline:not(.status-demarcate-bottom) {
@@ -349,11 +350,11 @@ export default {
         status.curation_reply && 'status-curation-reply',
         status.curation_context && 'status-curation-context',
         status.curation_dropped && 'status-curation-dropped',
-        status.demarcate_bottom && 'status-demarcate-bottom',
-        status.demarcate_top && 'status-demarcate-top',
-        status.demarcate_top_lite && 'status-demarcate-top-lite',
-        status.demarcate_top_heavy && 'status-demarcate-top-heavy',
-        status.demarcate_side && 'status-demarcate-side',
+        status.curation_edition_empty && 'status-demarcate-top-heavy',
+        status.curation_edition_firststatus && 'status-demarcate-top',
+        status.curation_edition_laststatus && 'status-demarcate-bottom',
+        status.curation_edition_status && 'status-demarcate-side',
+        status.curation_section_firststatus && 'status-demarcate-top-lite',
         timelineType !== 'direct' && visibility === 'direct' && 'status-direct',
         timelineType !== 'search' && 'status-in-timeline',
         isStatusInOwnThread && 'status-in-own-thread',

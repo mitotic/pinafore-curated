@@ -206,10 +206,14 @@ export function getMonthStartTime (date, UTCtime) {
   return dateObj
 }
 
+export function localTime2hhmm () {
+  return new Date().toLocaleString('en-GB', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }).slice(-8, -3)
+}
+
 export function hhmm2localTime (HHcMM, beforeEpoch) {
   const [hh, mm] = HHcMM.split(':')
   const dateObj = new Date()
-  dateObj.setHours(parseInt(hh), parseInt(mm), 0, 0)
+  dateObj.setHours(parseInt(hh) % 24, parseInt(mm) % 60, 0, 0)
 
   beforeEpoch = beforeEpoch || new Date().getTime()
   while (dateObj.getTime() >= beforeEpoch) {

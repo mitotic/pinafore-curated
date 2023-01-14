@@ -1,6 +1,6 @@
 import { store } from '../_store/store.js'
 
-import { getItem, putItem, keyRange, keyBefore, objectStoreNames, clearStore, getAllKeys, deleteAllItems, hhmm2localTime, date2hhmmISO, convertDate2Timezone, equalForTimezone } from './curationStore.js'
+import { getItem, putItem, keyRange, keyBefore, objectStoreNames, clearStore, getAllKeys, deleteAllItems, localTime2hhmm, hhmm2localTime, date2hhmmISO, convertDate2Timezone, equalForTimezone } from './curationStore.js'
 
 import { CACHE_PREFIX, getCurrentFollows, getUserFollow, setUserFollow, getFilter, getAllCachedKeys, clearAllCached, getCached, getAllEditionStatuses } from './curationCache.js'
 
@@ -31,6 +31,8 @@ window.CurationCounter = CurationCounter
 window.getDigestUsers = getDigestUsers
 
 window.getHashtags = getHashtags
+
+window.localTime2hhmm = localTime2hhmm
 
 window.convertDate2Timezone = convertDate2Timezone
 
@@ -79,7 +81,7 @@ window.getAllEditionStatuses = function () {
 }
 
 window.getRecentEditionStatuses = function (startTimeHHMM, endTimeHHMM) {
-  startTimeHHMM = startTimeHHMM || new Date().toLocaleString('en-GB', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }).slice(-8, -3)
+  startTimeHHMM = startTimeHHMM || localTime2hhmm()
   endTimeHHMM = endTimeHHMM || startTimeHHMM
   const endTime = hhmm2localTime(endTimeHHMM)
   const endId = createSnowflakeId(endTime)

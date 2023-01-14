@@ -91,6 +91,7 @@ const nonPersistedState = {
   verifyCredentials: {},
   curationFilterTime: '',
   curationPostsPerDay: '*',
+  curationEditionStats: '',
   curationUpdatingRecent: '',
   curationUpdatingBuffer: '',
   curationUpdatingMessage: ''

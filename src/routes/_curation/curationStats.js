@@ -85,7 +85,7 @@ export async function computePostStats () {
   userAccum[myUsername] = newUserAccum({ userEntry })
 
   let intervalCount = 0
-  let intervalStats = []
+  const intervalStats = []
   while (intervalStr < finalIntervalEnd) {
     const nextIntervalStr = nextInterval(intervalStr)
     const statusSummaries = await getSummaries(intervalStr, nextIntervalStr)

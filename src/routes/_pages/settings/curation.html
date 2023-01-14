@@ -297,13 +297,13 @@
           return ['Curation filter statistics being calculated...', '', '']
         }
         const filter = getFilter()
-        const [userStats, userEntries] = filter
+        const [globalStats, userEntries] = filter
         const endTime = new Date(nextInterval($curationLastSaveInterval)).toLocaleString()
         const stats1 = `Expected average daily views = ${$curationViewsPerDay}`
-        const stats2 = `Default Mahoot Number=${userStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
-        let stats3 = `Analyzed ${userStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${userStats.day_total.toFixed(2)} days ending ${endTime}.`
+        const stats2 = `Default Mahoot Number=${globalStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
+        let stats3 = `Analyzed ${globalStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${globalStats.day_total.toFixed(2)} days ending ${endTime}.`
         if ($curationDevMode) {
-          stats3 += ` (Last day: received=${userStats.status_lastday}, shown=${userStats.shown_lastday})`
+          stats3 += ` (Last day: received=${globalStats.status_lastday}, shown=${globalStats.shown_lastday})`
         }
 
         return [stats1, stats2, stats3]

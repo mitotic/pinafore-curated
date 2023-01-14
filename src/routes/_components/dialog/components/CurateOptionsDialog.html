@@ -28,7 +28,7 @@ export default {
     droppedLabel: ({ curateInfo }) => curateInfo.curation_dropped ? 'Dropped: ' + curateInfo.curation_dropped : '',
     followInfo: ({ $curationFilterTime, username }) => getCurrentFollows() ? (getCurrentFollows()[username] || null) : {},
     userProb: ({ $curationFilterTime, username }) => getFilter() ? getFilter()[1][username] : null,
-    userStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
+    globalStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
     isTracked: ({ userProb }) => {
       return userProb
     },
@@ -39,14 +39,14 @@ export default {
       return $curationDevMode
     },
     userLabel: ({ $curationAnonymize, username, userProb }) => ((username === getMyUsername()) ? 'Self: ' : 'Followee: ') + ($curationAnonymize ? userProb.altname : '@' + username),
-    postLabel: ({ $curationViewsPerDay, isTracked, userProb, userStats }) => isTracked ? `Posts/day: ${roundCount(userProb.total_daily)} (#${roundCount(userProb.motx_daily + userProb.priority_daily)}+${roundCount(userProb.post_daily + userProb.boost_daily)})` : '',
+    postLabel: ({ $curationViewsPerDay, isTracked, userProb }) => isTracked ? `Posts/day: ${roundCount(userProb.total_daily)} (#${roundCount(userProb.motx_daily + userProb.priority_daily)}+${roundCount(userProb.post_daily + userProb.boost_daily)})` : '',
     probLabel: ({ isTracked, userProb }) => isTracked
       ? `View Probability: ${roundPercent(userProb.net_prob)}
   (#${roundPercent(userProb.priority_prob)}, ${roundPercent(userProb.post_prob)})`
       : '',
     engagedLabel: ({ isFollowee, userProb }) => isFollowee ? `Dev: Engaged posts: ${roundCount(userProb.engaged_daily)}` : '',
     ampValue: ({ followInfo }) => followInfo ? followInfo.amp_factor : '',
-    mahootLabel: ({ isFollowee, ampValue, userStats }) => isFollowee ? 'User Mahoot number: ' + (ampValue * userStats.mahoot_number).toFixed(2) : '',
+    mahootLabel: ({ isFollowee, ampValue, globalStats }) => isFollowee ? 'User Mahoot number: ' + (ampValue * globalStats.mahoot_number).toFixed(2) : '',
     digestLabel: ({ isFollowee, username }) => isFollowee && 'Dev: Digest: ' + JSON.stringify(getDigestUsers()[username] || null),
     ampLabel: ({ isFollowee, ampValue }) => isFollowee ? 'Amp Factor: ' + ampValue : '',
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
@@ -167,8 +167,8 @@ export default {
       // this.close()
     },
     async onDevUserStatus () {
-      const { username, followInfo, userStats, userProb, curateInfo } = this.get()
-      curationConsole('DevUserStatus1', username, '\nFOLLOW', followInfo, 'GLOBALSTATS', userStats, 'USERSTATS', userProb)
+      const { username, followInfo, globalStats, userProb, curateInfo } = this.get()
+      curationConsole('DevUserStatus1', username, '\nFOLLOW', followInfo, 'GLOBALSTATS', globalStats, 'USERSTATS', userProb)
 
       if (curateInfo.status) {
         const summary = await getSummary(curateInfo.status.id)
@@ -177,9 +177,8 @@ export default {
     },
     async onDevStats () {
       computePostStats()
-      const filter = getFilter()
-      const [userStats] = filter
-      curationConsole('DevStats \nGLOBALSTATS', userStats)
+      const [globalStats] = getFilter()
+      curationConsole('DevStats \nGLOBALSTATS', globalStats)
     }
   }
 }
