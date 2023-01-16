@@ -6,7 +6,7 @@ import li from 'li'
 // Cap number of follows/follower displayed to avoid overload
 const MAX_FOLLOW_ITEMS = 2000
 
-async function fetchPagedAccounts (url, accessToken, plainTextNotes) {
+async function fetchPagedItems (url, accessToken, plainTextNotes) {
   console.log('fetching paged url', url)
 
   let { json: items, headers } = await getWithHeaders(url, auth(accessToken), { timeout: DEFAULT_TIMEOUT })
@@ -16,7 +16,7 @@ async function fetchPagedAccounts (url, accessToken, plainTextNotes) {
 
   if (nextUrl && items.length < MAX_FOLLOW_ITEMS) {
     const result = await Promise.all([
-      fetchPagedAccounts(nextUrl, accessToken, plainTextNotes),
+      fetchPagedItems(nextUrl, accessToken, plainTextNotes),
       note2PlainText(items, plainTextNotes)
     ])
 
@@ -28,16 +28,22 @@ async function fetchPagedAccounts (url, accessToken, plainTextNotes) {
   return items
 }
 
+export async function getFollowedTags (instanceName, accessToken, limit = 100) {
+  let url = `${basename(instanceName)}/api/v1/followed_tags`
+  url += '?' + paramsString({ limit })
+  return fetchPagedItems(url, accessToken, true)
+}
+
 export async function getFollows (instanceName, accessToken, accountId, limit = 80) {
   let url = `${basename(instanceName)}/api/v1/accounts/${accountId}/following`
   url += '?' + paramsString({ limit })
-  return fetchPagedAccounts(url, accessToken, true)
+  return fetchPagedItems(url, accessToken, true)
 }
 
 export async function getFollowers (instanceName, accessToken, accountId, limit = 80) {
   let url = `${basename(instanceName)}/api/v1/accounts/${accountId}/followers`
   url += '?' + paramsString({ limit })
-  return fetchPagedAccounts(url, accessToken, false)
+  return fetchPagedItems(url, accessToken, false)
 }
 
 async function note2PlainText (items, convert) {
@@ -46,7 +52,7 @@ async function note2PlainText (items, convert) {
   }
   // Compute the plain text version of note (bio) for each account
   for (const item of items) {
-    item.plaintext_note = statusHtmlToPlainText(item.note, [])
+    item.plaintext_note = statusHtmlToPlainText(item.note || '', [])
   }
   return true
 }

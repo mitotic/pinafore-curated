@@ -48,6 +48,8 @@ const persistedState = {
   curationDaysOfData: 30,
   curationEditionTime: '', // hh:mm value (local time) TODO: up to 4 editions per day
   curationSecretKey: 'default', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
+  curationTagsFollowed: [],
+  curationTagsAmpFactor: 4,
   curationDisabled: false,
   curationShowTime: false,
   curationShowAllStatus: false,

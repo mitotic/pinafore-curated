@@ -35,10 +35,13 @@ export default {
     isFollowee: ({ followInfo, userProb }) => {
       return followInfo && userProb
     },
+    isFollowedTag: ({ username }) => {
+      return username.startsWith('#')
+    },
     isDevMode: ({ $curationDevMode }) => {
       return $curationDevMode
     },
-    userLabel: ({ $curationAnonymize, username, userProb }) => ((username === getMyUsername()) ? 'Self: ' : 'Followee: ') + ($curationAnonymize ? userProb.altname : '@' + username),
+    userLabel: ({ $curationAnonymize, isFollowedTag, username, userProb }) => ((username === getMyUsername()) ? 'Self: ' : 'Followee: ') + ($curationAnonymize ? userProb.altname : (isFollowedTag ? username : '@' + username)),
     postLabel: ({ $curationViewsPerDay, isTracked, userProb }) => isTracked ? `Posts/day: ${roundCount(userProb.total_daily)} (#${roundCount(userProb.motx_daily + userProb.priority_daily)}+${roundCount(userProb.post_daily + userProb.boost_daily)})` : '',
     probLabel: ({ isTracked, userProb }) => isTracked
       ? `View Probability: ${roundPercent(userProb.net_prob)}
@@ -52,7 +55,7 @@ export default {
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
     topicsLabel: ({ userProb }) => 'Dev: Topics: ' + userProb[USER_TOPICS_KEY],
     items: ({
-      isTracked, isFollowee, isDevMode, droppedLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
+      isTracked, isFollowee, isFollowedTag, isDevMode, droppedLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
     }) => ([
       droppedLabel && {
         key: 'dropped',
@@ -94,7 +97,7 @@ export default {
         label: 'Amp-down',
         icon: '#fa-angles-down'
       },
-      isFollowee && {
+      isFollowee && !isFollowedTag && {
         key: 'timezone',
         label: timezone,
         icon: ''

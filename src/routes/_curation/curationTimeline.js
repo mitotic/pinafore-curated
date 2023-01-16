@@ -21,7 +21,7 @@ function editionLabel (status, display) {
 
   let prefix = '@@'
   let userIndex = '0000'
-  if (MOT_TAGS.includes(section.substr(1))) {
+  if (section.startsWith('#') && MOT_TAGS.includes(section.substr(1))) {
     prefix = zeropad(0, prefix.length) + '#' + MOTX_TAG
   } else {
     const digestUsers = getDigestUsers()
@@ -213,7 +213,7 @@ export function curateStatuses (instanceName, statuses, updating) {
       const modStatus = curateSingleStatus(statusSummary, instanceName, currentFollows, currentStats, currentProbs, editionCount)
 
       if (modStatus.curation_save) {
-        putEditionStatus({ ...status, ...{ curation_save: modStatus.curation_save } })
+        putEditionStatus({ ...status, ...{ curation_save: modStatus.curation_save, curation_tag: modStatus.curation_tag || '' } })
       }
 
       if (curationHideDuplicateBoosts && status.reblog) {
@@ -230,7 +230,7 @@ export function curateStatuses (instanceName, statuses, updating) {
 
       if (PREFILL_STATUSBUFFER) {
         // May happen asynchronously; no need to wait
-        bufferStatusSummaryAsync(currentFollows, {}, statusSummary)
+        bufferStatusSummaryAsync(currentFollows, statusSummary)
       }
     }
   }

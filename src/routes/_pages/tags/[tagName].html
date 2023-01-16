@@ -1,6 +1,14 @@
 {#if $isUserLoggedIn}
   <TimelinePage timeline="tag/{params.tagName}">
     <DynamicPageBanner title="{'#' + params.tagName}"/>
+      <div class="mahoot-hash-tag-follow-icon">
+      <IconButton
+       className="big-icon"
+       label="tagfollow"
+       href="{followIcon}"
+       on:click="onTagFollowButtonClick(event)"
+      />
+      </div>
   </TimelinePage>
 {:else}
   <HiddenFromSSR>
@@ -11,20 +19,42 @@
     </FreeTextLayout>
   </HiddenFromSSR>
 {/if}
+<style>
+  .mahoot-hash-tag-follow-icon {
+    padding-left: 15px;
+  }
+</style>
 <script>
   import TimelinePage from '../../_components/TimelinePage.html'
   import FreeTextLayout from '../../_components/FreeTextLayout.html'
   import { store } from '../../_store/store.js'
   import HiddenFromSSR from '../../_components/HiddenFromSSR.html'
   import DynamicPageBanner from '../../_components/DynamicPageBanner.html'
+  import IconButton from '../../_components/IconButton.html'
+
+  import { toggleTagFollow } from '../../_curation/curationFollows.js'
 
   export default {
+    methods: {
+      async onTagFollowButtonClick (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        const { params } = this.get()
+        console.log('onTagFollowButtonClick', params)
+        toggleTagFollow(params.tagName)
+      }
+    },
     store: () => store,
+    computed: {
+      following: ({ $curationTagsFollowed, params }) => $curationTagsFollowed.includes(params.tagName.toLowerCase()),
+      followIcon: ({ following }) => following ? '#fa-user-times' : '#fa-user-plus'
+    },
     components: {
       TimelinePage,
       FreeTextLayout,
       HiddenFromSSR,
-      DynamicPageBanner
+      DynamicPageBanner,
+      IconButton
     }
   }
 </script>

@@ -52,7 +52,7 @@
       <input type="checkbox" id="curationShowReplyContext"
              bind:checked="$curationShowReplyContext">
     </label>
-
+    <br>
     <label for="curationEditionTime">Digest edition time(s) (hh:mm,..):</label>
       <input type="text" inputmode="text" autocapitalize="none" spellcheck="false" id="curationEditionTime"
              bind:value='$curationEditionTime' placeholder="hh:mm[, hh:mm, ...] local time for daily digest edition(s)"
@@ -130,7 +130,8 @@
     {#if motxStats}<em>{motxStats}</em><br>{/if}
     <span>{summaryStats[0]}</span><br>
     <span><b>{summaryStats[1]}</b></span><br>
-    <span>{summaryStats[2]}</span>
+    {#if (summaryStats[2])}<span><b>{summaryStats[2]}</b></span><br>{/if}
+    <span>{summaryStats[3]}</span>
     {#if $curationUpdatingMessage}<br>{$curationUpdatingMessage}{/if}
     <hr>
 </div>
@@ -153,7 +154,7 @@
           on:click="onClickAction(event)"
         /></td>
         <td>{#if (entry.username === myUsername)}<b>{j+1}</b>{:else}{j+1}{/if}</td>
-        <td> <a href="/accounts/{entry.acct_id}">{entry.disp_username}</a></td>
+        <td>{#if (entry.username.startsWith('#'))}<a href="/tags/{entry.username.slice(1)}">{entry.disp_username}</a>{:else}<a href="/accounts/{entry.acct_id}">{entry.disp_username}</a>{/if}</td>
         <td> &nbsp;{entry.roundedCount}</td>
         <td> {entry.net_prob}%</td>
         <td> &nbsp;{entry.amp_factor}</td>
@@ -289,24 +290,25 @@
         return result.length ? '[' + result.join(', ') + ']' : ''
       },
 
-      summaryStats: ({ $curationViewsPerDay, $curationDaysOfData, $curationDisabled, $curationLastSaveInterval, $curationFilterTime, $curationAnonymize, $curationDevMode }) => {
+      summaryStats: ({ $curationViewsPerDay, $curationDaysOfData, $curationDisabled, $curationLastSaveInterval, $curationFilterTime, $curationAnonymize, $curationTagsFollowed, $curationDevMode }) => {
         if ($curationDisabled) {
-          return ['Curation DISABLED', '', '']
+          return ['Curation DISABLED', '', '', '']
         }
         if (!$curationLastSaveInterval || !$curationFilterTime) {
-          return ['Curation filter statistics being calculated...', '', '']
+          return ['Curation filter statistics being calculated...', '', '', '']
         }
         const filter = getFilter()
         const [globalStats, userEntries] = filter
         const endTime = new Date(nextInterval($curationLastSaveInterval)).toLocaleString()
-        const stats1 = `Expected average daily views = ${$curationViewsPerDay}`
-        const stats2 = `Default Mahoot Number=${globalStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
+        const stats0 = `Expected average daily views = ${$curationViewsPerDay}`
+        const stats1 = `Default Mahoot Number=${globalStats.mahoot_number.toFixed(1)} (daily views guaranteed per followee)`
+        const stats2 = $curationTagsFollowed && $curationTagsFollowed.length ? 'Following tags: #' + $curationTagsFollowed.join(', #') : ''
         let stats3 = `Analyzed ${globalStats.status_daily.toFixed(0)} posts/day by ${Object.keys(userEntries).length} followees over last ${globalStats.day_total.toFixed(2)} days ending ${endTime}.`
         if ($curationDevMode) {
           stats3 += ` (Last day: received=${globalStats.status_lastday}, shown=${globalStats.shown_lastday})`
         }
 
-        return [stats1, stats2, stats3]
+        return [stats0, stats1, stats2, stats3]
       },
 
       curatestats: ({ myUsername, $curationViewsPerDay, $curationDaysOfData, $curationDisabled, $curationLastSaveInterval, $curationFilterTime, $curationAnonymize }) => {
@@ -330,6 +332,7 @@
               username,
               altname: origEntry.altname,
               acct_id: origEntry.acct_id,
+              amp_factor: origEntry.amp_factor,
               count: origEntry.total_daily,
               net_prob: (100 * origEntry.net_prob).toFixed(0),
               priority_prob: (100 * origEntry.priority_prob).toFixed(0),
@@ -339,9 +342,8 @@
             entry.roundedCount = roundCount(entry.count)
             if (follows[username]) {
               entry.amp_factor = roundCount(follows[username].amp_factor, true)
-              entry.display_name = $curationAnonymize ? 'User ' + entry.altname.substring(5) : follows[username].display_name
+              entry.display_name = $curationAnonymize && !username.startsWith('#') ? 'User ' + entry.altname.substring(5) : follows[username].display_name
             } else {
-              entry.amp_factor = 1
               if (username === myUsername) {
                 entry.display_name = $curationAnonymize ? 'My Self' : getSelfUser().display_name
               } else {

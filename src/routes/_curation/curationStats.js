@@ -215,16 +215,12 @@ function accumulateStatusCounts (currentFollows, userAccum, summaryCache, status
 
     const follow = currentFollows[username] || null
 
-    if (!(username in userAccum)) {
-      // No stats yet for user; check if following user
-      if (!follow) {
-        // Skip unfollowed (non-self) user
-        // TODO: hashtag following
-        continue
-      }
-      // Post/boost from followee
-      // TODO: search tags of the post and treat tag follows like user follows
-
+    const trackingNames = []
+    if (username in userAccum) {
+      // Tracking user
+      trackingNames.push(username)
+    } else if (follow) {
+      // Post/boost from followee; track followee
       const altname = 'user_' + HmacHex(curationSecretKey, 'anonymize_' + username).slice(-4)
 
       const userEntry = newUserFilter({
@@ -234,38 +230,67 @@ function accumulateStatusCounts (currentFollows, userAccum, summaryCache, status
         amp_factor: Math.min(MAX_AMP_FACTOR, Math.max(MIN_AMP_FACTOR, follow.amp_factor))
       })
       userAccum[username] = newUserAccum({ userEntry, followed_at: follow.followed_at })
-    }
-
-    const accum = userAccum[username]
-
-    if (summaryInfo.reblog_id) {
-      // Reblog count
-      const statusInfo = statusStats[summaryInfo.reblog_id]
-
-      if (statusInfo) {
-        // Total boosted post count
-        accum.boost_total += 1
-        // Total log2(1+reblog count) associated with boosted posts (NOTE: THIS IS A SNAPSHOT VALUE)
-        accum.reblog2_total += Math.log2(1 + statusInfo.reblogs_count)
-      }
+      trackingNames.push(username)
     } else {
-      // Post count (not reblog)
-      const motx = summaryInfo.tags.some((tag) => MOT_TAGS.includes(tag))
-
-      // TODO: a better way to indicate priority
-      const priority = isPriorityStatus(summaryInfo, accum.topics)
-
-      if (motx) {
-        accum.motx_total += 1
-      } else if (priority) {
-        accum.priority_total += 1
-      } else if (!(curationHideSelfReplies && summaryInfo.self_reply)) {
-        // Do not count plain self replies, if they are not displayed)
-        accum.post_total += 1
+      // Post from non-followed user; check if following tags in post
+      for (const tag of summaryInfo.tags) {
+        const trackName = '#' + tag
+        const tagFollow = currentFollows[trackName] || null
+        if (tagFollow) {
+          if (!(trackName in userAccum)) {
+            const userEntry = newUserFilter({
+              altname: trackName,
+              acct_id: '',
+              topics: '',
+              amp_factor: Math.min(MAX_AMP_FACTOR, Math.max(MIN_AMP_FACTOR, tagFollow.amp_factor))
+            })
+            userAccum[trackName] = newUserAccum({ userEntry, followed_at: tagFollow.followed_at })
+          }
+          trackingNames.push(trackName)
+        }
       }
     }
 
-    accum.engaged_total += summaryInfo.engaged
+    if (!trackingNames.length) {
+      // Ignore non-followed non-tagged post
+      continue
+    }
+
+    const motx = summaryInfo.tags.some((tag) => MOT_TAGS.includes(tag))
+    const accumFac = 1 / trackingNames.length // Split post among different followed tags
+
+    for (const trackName of trackingNames) {
+      const accum = userAccum[trackName]
+      const followingTag = trackName.startsWith('#')
+
+      if (summaryInfo.reblog_id) {
+        // Reblog count
+        const statusInfo = statusStats[summaryInfo.reblog_id]
+
+        if (statusInfo) {
+          // Total boosted post count
+          accum.boost_total += accumFac
+          // Total log2(1+reblog count) associated with boosted posts (NOTE: THIS IS A SNAPSHOT VALUE)
+          accum.reblog2_total += Math.log2(1 + statusInfo.reblogs_count)
+        }
+      } else {
+        // Post count (not reblog)
+
+        // TODO: a better way to indicate priority
+        const priority = !followingTag && isPriorityStatus(summaryInfo, accum.topics)
+
+        if (!followingTag && motx) {
+          accum.motx_total += accumFac
+        } else if (priority) {
+          accum.priority_total += accumFac
+        } else if (!(curationHideSelfReplies && summaryInfo.self_reply)) {
+          // Do not count plain self replies, if they are not displayed)
+          accum.post_total += accumFac
+        }
+      }
+
+      accum.engaged_total += accumFac * summaryInfo.engaged
+    }
   }
 }
 
@@ -350,11 +375,11 @@ function computeUserProbabilities (currentFollows, intervalCount, finalIntervalE
     }
   }
 
-  for (const [username, accum] of accumEntries) {
+  for (const [trackName, accum] of accumEntries) {
     const userEntry = accum.userEntry
 
     // Estimate "net" probability using normalized_daily count (used for display purposes only; not for actual filtering)
-    const netCount = (username === myUsername) ? userEntry.total_daily : accum.normalized_daily
+    const netCount = (trackName === myUsername) ? userEntry.total_daily : accum.normalized_daily
     userEntry.net_prob = Math.min(1, mahootNumber / Math.max(1, netCount))
 
     // Count of regular posts and boosts (excluding MOTx/priority)

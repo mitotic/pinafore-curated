@@ -4,7 +4,7 @@ import { zeropad, offsetDaysInDate, nextTimeInterval } from './curationStore.js'
 
 import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
-export const MAHOOT_CODE_VERSION = '0.3.12'
+export const MAHOOT_CODE_VERSION = '0.3.13'
 
 export const MAHOOT_DATA_VERSION = '0.3'
 
@@ -145,7 +145,7 @@ let DigestUsersText = ''
 let DigestUsersCached = {}
 
 export function getDigestUsers () {
-  // Entries: username1, username2@server2 *SectionName username3@server3#tag3, ...
+  // Entries: username1, username2@server2 *SectionName username3@server3#tag3, #followtopic4, ...
   let { curationDigestUsers } = store.get()
   if (curationDigestUsers === DigestUsersText) {
     return DigestUsersCached
@@ -175,17 +175,24 @@ export function getDigestUsers () {
     const userEntries = names.map(s => s.trim()).map(s => s.startsWith('@') ? s.substr(1).trim() : s).filter(s => s)
     const secusers = []
     for (const userEntry of userEntries) {
-      const match = userEntry.match(/^(\w+(@[-.a-z0-9]+)?)(#\w+)?$/i)
+      const match = userEntry.match(/^(\w+(@[-.a-z0-9]+)?)?(#\w+)?$/i) // At least one pattern must match for non-null string
       if (match) {
-        const username = match[1].toLowerCase()
-        const tag = (match[3] || '').toLowerCase()
-        if (digestUsers[username]) {
+        let digestName = ''
+        let tag = ''
+        if (match[1]) {
+          digestName = match[1].toLowerCase()
+          tag = (match[3] || '').slice(1).toLowerCase()
+        } else {
+          // #tagname
+          digestName = match[3]
+        }
+        if (digestUsers[digestName]) {
           secusers.push('Duplicate:' + userEntry)
           rewrite = true
         } else {
           secusers.push(userEntry)
           userCount += 1
-          digestUsers[username] = { tag, section, index: userCount }
+          digestUsers[digestName] = { tag, section, index: userCount }
         }
       } else {
         if (userEntry.startsWith('Invalid:') || userEntry.startsWith('Duplicate:')) {
@@ -296,9 +303,16 @@ export function isFollowOrSelf (username, currentFollows) {
   return (username in currentFollows) || (username === getMyUsername())
 }
 
-export async function bufferStatusSummaryAsync (currentFollows, currentTagFollows, summary) {
-  if (!isFollowOrSelf(summary.username, currentFollows)) {
-    // TODO: Follow hashtags as if they were users
+export function getTagFollows (currentFollows, tags) {
+  return tags.filter(tag => ('#' + tag) in currentFollows)
+}
+
+export function isFollowOrSelfOrTag (currentFollows, summary) {
+  return isFollowOrSelf(summary.username, currentFollows) || getTagFollows(currentFollows, summary.tags).length
+}
+
+export async function bufferStatusSummaryAsync (currentFollows, summary) {
+  if (!isFollowOrSelfOrTag(currentFollows, summary)) {
     return
   }
 
@@ -311,8 +325,8 @@ export async function bufferStatusSummaryAsync (currentFollows, currentTagFollow
   setSummary(summary.id, summary)
 }
 
-export async function bufferStatusSummarySync (currentFollows, currentTagFollows, summary) {
-  if (!isFollowOrSelf(summary.username, currentFollows)) {
+export async function bufferStatusSummarySync (currentFollows, summary) {
+  if (!isFollowOrSelfOrTag(currentFollows, summary)) {
     // TODO: Follow hashtags as if they were users
     return false
   }

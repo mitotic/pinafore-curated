@@ -228,12 +228,12 @@ async function processStatusBlock (currentFollows, lastIntervalStr, statusBlock)
     const statusSummary = summarizeStatus(status)
 
     // Sync the buffer save so that statistics can be computed at the end of buffer update
-    await bufferStatusSummarySync(currentFollows, {}, statusSummary)
+    await bufferStatusSummarySync(currentFollows, statusSummary)
 
     const modStatus = curateSingleStatus(statusSummary, currentInstance, currentFollows, currentStats, currentProbs, editionCount)
     if (modStatus.curation_save) {
       // Can be async
-      putEditionStatus({ ...status, ...{ curation_save: modStatus.curation_save } })
+      putEditionStatus({ ...status, ...{ curation_save: modStatus.curation_save, curation_tag: modStatus.curation_tag || '' } })
     }
   }
 }

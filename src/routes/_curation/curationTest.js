@@ -41,7 +41,7 @@ window.equalForTimezone = equalForTimezone
 window.ampFactor = function (username) {
   const value = getUserFollow(username)
   if (value) {
-    const result = window.prompt('Amp factor for ' + username + ':', 1)
+    const result = window.prompt('Change amp factor for ' + username + ' from ' + value.amp_factor + ' to:', 1)
     if (result) {
       const ampfac = parseInt(result)
       if (ampfac) {

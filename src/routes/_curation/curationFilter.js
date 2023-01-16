@@ -4,7 +4,7 @@ import { CURATION_STATUSEDITION_AGO } from '../_static/database.js'
 import { createSnowflakeId, getSnowflakeEpoch } from './curationSnowflakeId.js'
 
 import { setUserFollow } from './curationCache.js'
-import { USER_TOPICS_KEY, USER_TIMEZONE_KEY, MOTD_MIN_MAHOOT_NUMBER, getDigestUsers } from './curationGeneral.js'
+import { USER_TOPICS_KEY, USER_TIMEZONE_KEY, MOTD_MIN_MAHOOT_NUMBER, getDigestUsers, getTagFollows } from './curationGeneral.js'
 import { MOTD_TAG, MOTX_TAG, MOT_TAGS, DIGEST_TAG, NODIGEST_TAG, PRIORITY_TAG, equalForTimezone } from './curationStore.js'
 
 import { HmacRandom } from '../_thirdparty/HMAC/HMAC.js'
@@ -64,7 +64,7 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
   const username = statusSummary.username
   const statusId = statusSummary.id
 
-  const modStatus = { curation_tag: '' }
+  const modStatus = { curation_msg: '' }
   modStatus.curation_id = getCurationId()
 
   const digestUsers = getDigestUsers()
@@ -73,7 +73,13 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
 
   const statusTime = getSnowflakeEpoch(statusId)
 
-  const digestible = editionCount && !statusSummary.reblog_id && !statusSummary.tags.includes(NODIGEST_TAG) && (statusTime >= (Date.now() - CURATION_STATUSEDITION_AGO))
+  const digestible = editionCount && !statusSummary.reblog_id && !statusSummary.in_reply_to_id && !statusSummary.tags.includes(NODIGEST_TAG) && (statusTime >= (Date.now() - CURATION_STATUSEDITION_AGO))
+
+  const tagFollows = getTagFollows(currentFollows, statusSummary.tags)
+
+  let handledStatus = ''
+  let userSave = ''
+  let tagSave = ''
 
   if (username === myUsername || username === statusSummary.orig_username) {
     // Always display own posts or boosts of own posts
@@ -83,23 +89,24 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
   } else if (currentProbs) {
     // TODO: Allow all SELF mentions
 
+    let priority = false
+    let motxAccept = ''
+
     if (username in currentProbs) {
       // Currently tracking user
       const userEntry = currentProbs[username]
       const randomNum = HmacRandom(curationSecretKey, 'filter_' + myUsername + '_' + statusSummary.id)
 
-      modStatus.curation_tag = `Posted ${Math.round(countTotalPosts(userEntry))} (boosted ${userEntry.boost_total}) with view probability ${userEntry.post_prob.toFixed(2)},`
-      modStatus.curation_tag += ` out of ${currentStats.status_total} total posts in your feed over ${currentStats.day_total} days `
+      handledStatus = `Posted ${Math.round(countTotalPosts(userEntry))} (boosted ${userEntry.boost_daily}) with view probability ${userEntry.post_prob.toFixed(2)},`
+      handledStatus += ` out of ${currentStats.status_total} total posts in your feed over ${currentStats.day_total} days `
 
       const follow = currentFollows ? (currentFollows[username] || null) : null
 
-      let priority = isPriorityStatus(statusSummary, follow[USER_TOPICS_KEY] || '')
-
-      let motxAccept = ''
+      priority = isPriorityStatus(statusSummary, follow[USER_TOPICS_KEY] || '')
 
       if (follow) {
         const userTimezone = follow[USER_TIMEZONE_KEY] || 'UTC'
-        modStatus.curation_tag += ` [amp factor ${follow.amp_factor}]`
+        handledStatus += ` [amp factor ${follow.amp_factor}]`
 
         const motxFound = !statusSummary.reblog_id && statusSummary.tags.some((tag) => MOT_TAGS.includes(tag))
 
@@ -160,24 +167,55 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
         modStatus.curation_dropped = regularDrop ? 'random (regular)' : ''
       }
 
-      if (modStatus.curation_dropped) {
-        modStatus.curation_tag += ' [Dropped ' + modStatus.curation_dropped + ']'
-        /// console.log('***curationTest-post_prob DROPPED', username, userEntry.post_prob, randomNum, modStatus.curation_tag)
-      } else if (digestible) {
+      if (!modStatus.curation_dropped && digestible) {
         const digestUser = digestUsers[username] || null
         if (digestUser && (!digestUser.tag || statusSummary.tags.includes(digestUser.tag) || (motxAccept && digestUser.tag === MOTX_TAG))) {
           // Save post from digest user (with matching tag, if present) for next edition
           /// console.log("curateSingleStatus-DIGESTSAVE", username, digestUser)
-          modStatus.curation_save = digestUser.section
-          modStatus.curation_dropped = 'saved for edition ' + digestUser.section
+          userSave = digestUser.section
         } else if (motxAccept && statusSummary.tags.includes(DIGEST_TAG)) {
           // Save MOTx post for next edition
           /// console.log("curateSingleStatus-MOTxSAVE", username, motxAccept, statusSummary)
-          modStatus.curation_save = '#' + motxAccept
-          modStatus.curation_dropped = 'saved for edition ' + motxAccept
+          userSave = '#' + motxAccept
         }
       }
     }
+
+    if (tagFollows.length) {
+      let count = 0
+      let totalPostProb = 0
+      for (const tag of tagFollows) {
+        const trackName = '#' + tag
+        const digestUser = digestUsers[trackName] || null
+        if (digestible && digestUser && !tagSave) {
+          // Associate first digestible tag with post for edition
+          tagSave = digestUser.section
+        }
+
+        if (trackName in currentProbs) {
+          const tagEntry = currentProbs[trackName]
+          totalPostProb += tagEntry.post_prob
+          count += 1
+        }
+      }
+
+      if (!handledStatus) {
+        // Decide whether to keep/drop post with followed hashtag
+        const tagStr = '#' + tagFollows.join('/')
+        const randomNum = HmacRandom(curationSecretKey, 'filter_' + tagStr + '_' + statusSummary.id)
+        const regularDrop = randomNum >= (totalPostProb / count) // Average probability across followed tags
+        handledStatus = 'Tags: ' + tagStr
+        modStatus.curation_tag = '#' + tagFollows[0]
+        modStatus.curation_dropped = regularDrop ? 'random (tag) ' + tagStr : ''
+      }
+    }
+  }
+  modStatus.curation_msg = handledStatus
+  if (modStatus.curation_dropped) {
+    modStatus.curation_msg += ' [Dropped ' + modStatus.curation_dropped + ']'
+  } else if (userSave || tagSave) {
+    modStatus.curation_save = userSave || tagSave
+    modStatus.curation_dropped = 'saved for edition ' + (userSave || tagSave)
   }
   return modStatus
 }
