@@ -107,7 +107,7 @@ To follow a hashtag, use the search menu from the top bar and type the hashtag y
 Then select the hashtag from the search results to go to the hashtag page. The button near the top of the page allows you follow/unfollow the hashtag.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/HashtagFollow.png"
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/HashTagFollow.png"
      alt="Hashtag page for climate change showing follow/unfollow button">
 <br>
 <em>Follow/unfollow hashtag</em>
