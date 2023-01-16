@@ -4,7 +4,7 @@ import { CURATION_STATUSEDITION_AGO } from '../_static/database.js'
 import { createSnowflakeId, getSnowflakeEpoch } from './curationSnowflakeId.js'
 
 import { setUserFollow } from './curationCache.js'
-import { USER_TOPICS_KEY, USER_TIMEZONE_KEY, MOTD_MIN_MAHOOT_NUMBER, getDigestUsers, getTagFollows } from './curationGeneral.js'
+import { USER_TOPICS_KEY, USER_TIMEZONE_KEY, MOTD_MIN_MAHOOT_NUMBER, getEditionLayout, getTagFollows } from './curationGeneral.js'
 import { MOTD_TAG, MOTX_TAG, MOT_TAGS, DIGEST_TAG, NODIGEST_TAG, PRIORITY_TAG, equalForTimezone } from './curationStore.js'
 
 import { HmacRandom } from '../_thirdparty/HMAC/HMAC.js'
@@ -67,7 +67,7 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
   const modStatus = { curation_msg: '' }
   modStatus.curation_id = getCurationId()
 
-  const digestUsers = getDigestUsers()
+  const editionLayout = getEditionLayout()
 
   const myUsername = verifyCredentials[instanceName].acct.toLowerCase()
 
@@ -168,15 +168,15 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
       }
 
       if (!modStatus.curation_dropped && digestible) {
-        const digestUser = digestUsers[username] || null
-        if (digestUser && (!digestUser.tag || statusSummary.tags.includes(digestUser.tag) || (motxAccept && digestUser.tag === MOTX_TAG))) {
+        const editionUser = editionLayout[username] || null
+        if (editionUser && (!editionUser.tag || statusSummary.tags.includes(editionUser.tag) || (motxAccept && editionUser.tag === MOTX_TAG))) {
           // Save post from digest user (with matching tag, if present) for next edition
-          /// console.log("curateSingleStatus-DIGESTSAVE", username, digestUser)
-          userSave = digestUser.section
+          /// console.log("curateSingleStatus-DIGESTSAVE", username, editionUser)
+          userSave = editionUser.section
         } else if (motxAccept && statusSummary.tags.includes(DIGEST_TAG)) {
           // Save MOTx post for next edition
           /// console.log("curateSingleStatus-MOTxSAVE", username, motxAccept, statusSummary)
-          userSave = '#' + motxAccept
+          userSave = '#' + MOTX_TAG
         }
       }
     }
@@ -186,10 +186,10 @@ export function curateSingleStatus (statusSummary, instanceName, currentFollows,
       let totalPostProb = 0
       for (const tag of tagFollows) {
         const trackName = '#' + tag
-        const digestUser = digestUsers[trackName] || null
-        if (digestible && digestUser && !tagSave) {
+        const editionUser = editionLayout[trackName] || null
+        if (digestible && editionUser && !tagSave) {
           // Associate first digestible tag with post for edition
-          tagSave = digestUser.section
+          tagSave = editionUser.section
         }
 
         if (trackName in currentProbs) {

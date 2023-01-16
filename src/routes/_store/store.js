@@ -47,7 +47,7 @@ const persistedState = {
   curationViewsPerDay: 300,
   curationDaysOfData: 30,
   curationEditionTime: '', // hh:mm value (local time) TODO: up to 4 editions per day
-  curationDigestUsers: '',
+  curationEditionLayout: '',
   curationSecretKey: 'default', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
   curationTagsFollowed: [],
   curationTagsAmpFactor: 1,
@@ -69,7 +69,7 @@ const persistedState = {
   curationLastFollowRefresh: '' // Time (yyyy-mm-ddThh:mmZ) of last user follow/hashtag follow refresh
 }
 
-export const CURATION_SETTINGS = ['curationViewsPerDay', 'curationDaysOfData', 'curationEditionTime', 'curationDigestUsers', 'curationSecretKey', 'curationDisabled', 'curationLastMotxDates', 'curationLastSaveInterval', 'curationLastFollowRefresh'].reduce((obj, key) => ({ ...obj, [key]: persistedState[key] }), {})
+export const CURATION_SETTINGS = ['curationViewsPerDay', 'curationDaysOfData', 'curationEditionTime', 'curationEditionLayout', 'curationSecretKey', 'curationDisabled', 'curationLastMotxDates', 'curationLastSaveInterval', 'curationLastFollowRefresh'].reduce((obj, key) => ({ ...obj, [key]: persistedState[key] }), {})
 
 const nonPersistedState = {
   customEmoji: {},

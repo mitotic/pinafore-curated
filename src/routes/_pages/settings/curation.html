@@ -52,15 +52,14 @@
       <input type="checkbox" id="curationShowReplyContext"
              bind:checked="$curationShowReplyContext">
     </label>
-    <br>
     <label for="curationEditionTime">Digest edition time(s) (hh:mm,..):</label>
       <input type="text" inputmode="text" autocapitalize="none" spellcheck="false" id="curationEditionTime"
              bind:value='$curationEditionTime' placeholder="hh:mm[, hh:mm, ...] local time for daily digest edition(s)"
       >
     <br>
-    <label for="curationDigestUsers">Username#tags for auto digest:</label>
-        <textarea bind:value="$curationDigestUsers"
-                  placeholder="username1, username2@server2 *SectionName username3@server3#tag3, ..."
+    <label for="curationEditionLayout">Digest edition layout (Section, Username#tag, ...):</label>
+        <textarea bind:value="$curationEditionLayout"
+                  placeholder="username1, username2@server2 *SectionName username3@server3#tag3, #followedTag, ..."
                   maxlength="1000"></textarea>
     <label class="setting-group">
       Amplify high boosts:

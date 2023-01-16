@@ -3,34 +3,38 @@ import { database } from '../_database/database.js'
 import { getStatus } from '../_api/statuses.js'
 
 import { createSnowflakeId, getSnowflakeEpoch, getSnowflakeDate } from './curationSnowflakeId.js'
-import { MOT_TAGS, MOTX_TAG, hhmm2localTime, date2hhmmISO, zeropad } from './curationStore.js'
+import { MOTX_TAG, hhmm2localTime, date2hhmmISO, zeropad } from './curationStore.js'
 import { curatorReblog } from './curationUser.js'
 import { updateStatusBuffer } from './curationBuffer.js'
 
 import { PREFILL_STATUSBUFFER, getCurrentFollows, getFilter, putEditionStatus, getAllEditionStatuses } from './curationCache.js'
 
-import { nextInterval, getDigestUsers, getEditionTimeStrs, summarizeStatus, bufferStatusSummaryAsync } from './curationGeneral.js'
+import { nextInterval, getEditionLayout, getEditionTimeStrs, summarizeStatus, bufferStatusSummaryAsync } from './curationGeneral.js'
 
 import { curateSingleStatus } from './curationFilter.js'
 
 function editionLabel (status, display) {
-  // In ASCII sort order, '@' comes after all digits, and '*' comes before digits and after '#'
-  // section names are of the form #tag or *name
+  // Section names are of the form #motx or *[name]
   const username = status.account.acct.toLowerCase()
   const section = status.curation_save || '#'
+  const editionLayout = getEditionLayout()
 
-  let prefix = '@@'
-  let userIndex = '0000'
-  if (section.startsWith('#') && MOT_TAGS.includes(section.substr(1))) {
-    prefix = zeropad(0, prefix.length) + '#' + MOTX_TAG
+  let sectionIndex = '9999'
+  let userIndex = '9999'
+  if (section === '#' + MOTX_TAG) {
+    // #MOTx posts always appear first in the edition (to motivate their use)
+    // #MOTx posts will be sorted by username and then post time
+    sectionIndex = zeropad(0, sectionIndex.length) // 0000
   } else {
-    const digestUsers = getDigestUsers()
-    if (digestUsers[username]) {
-      userIndex = zeropad(digestUsers[username].index, userIndex.length)
+    if (editionLayout[section]) {
+      sectionIndex = zeropad(editionLayout[section].index, sectionIndex.length)
+    }
+    if (editionLayout[username]) {
+      userIndex = zeropad(editionLayout[username].index, userIndex.length)
     }
   }
-  // Sort by section name (beginning with # or *), then user index, then username then status time
-  const label = display ? section : prefix + section.toLowerCase() + userIndex + '@' + username + '-' + date2hhmmISO(getSnowflakeDate(status.id))
+  // Sort by section index, then section name, then user index, then username then post time
+  const label = display ? section : sectionIndex + '/' + section + '/' + userIndex + '@' + username + '-' + date2hhmmISO(getSnowflakeDate(status.id))
   return label
 }
 

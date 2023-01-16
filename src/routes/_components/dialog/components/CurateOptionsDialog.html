@@ -15,7 +15,7 @@ import { show } from '../helpers/showDialog.js'
 import { close } from '../helpers/closeDialog.js'
 import { oncreate } from '../helpers/onCreateDialog.js'
 import { getUserFollow, setUserFollow, getCurrentFollows, getFilter, getSummary } from '../../../_curation/curationCache.js'
-import { MAX_AMP_FACTOR, MIN_AMP_FACTOR, USER_TOPICS_KEY, USER_TIMEZONE_KEY, roundCount, roundPercent, getMyUsername, getDigestUsers, curationConsole } from '../../../_curation/curationGeneral.js'
+import { MAX_AMP_FACTOR, MIN_AMP_FACTOR, USER_TOPICS_KEY, USER_TIMEZONE_KEY, roundCount, roundPercent, getMyUsername, getEditionLayout, curationConsole } from '../../../_curation/curationGeneral.js'
 import { computePostStats } from '../../../_curation/curationStats.js'
 
 export default {
@@ -50,7 +50,7 @@ export default {
     engagedLabel: ({ isFollowee, userProb }) => isFollowee ? `Dev: Engaged posts: ${roundCount(userProb.engaged_daily)}` : '',
     ampValue: ({ followInfo }) => followInfo ? followInfo.amp_factor : '',
     mahootLabel: ({ isFollowee, ampValue, globalStats }) => isFollowee ? 'User Mahoot number: ' + (ampValue * globalStats.mahoot_number).toFixed(2) : '',
-    digestLabel: ({ isFollowee, username }) => isFollowee && 'Dev: Digest: ' + JSON.stringify(getDigestUsers()[username] || null),
+    digestLabel: ({ isFollowee, username }) => isFollowee && 'Dev: Digest: ' + JSON.stringify(getEditionLayout()[username] || null),
     ampLabel: ({ isFollowee, ampValue }) => isFollowee ? 'Amp Factor: ' + ampValue : '',
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
     topicsLabel: ({ userProb }) => 'Dev: Topics: ' + userProb[USER_TOPICS_KEY],

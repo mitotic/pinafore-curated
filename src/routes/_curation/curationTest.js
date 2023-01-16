@@ -4,7 +4,7 @@ import { getItem, putItem, keyRange, keyBefore, objectStoreNames, clearStore, ge
 
 import { CACHE_PREFIX, getCurrentFollows, getUserFollow, setUserFollow, getFilter, getAllCachedKeys, clearAllCached, getCached, getAllEditionStatuses } from './curationCache.js'
 
-import { nextInterval, getHashtags, getDigestUsers } from './curationGeneral.js'
+import { nextInterval, getHashtags, getEditionLayout } from './curationGeneral.js'
 import { computePostStats } from './curationStats.js'
 import { updateStatusBuffer, CurationCounter } from './curationBuffer.js'
 
@@ -28,7 +28,7 @@ window.eraseAllCurationData = eraseAllCurationData
 
 window.CurationCounter = CurationCounter
 
-window.getDigestUsers = getDigestUsers
+window.getEditionLayout = getEditionLayout
 
 window.getHashtags = getHashtags
 

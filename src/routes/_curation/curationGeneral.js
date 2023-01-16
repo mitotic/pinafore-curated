@@ -141,22 +141,22 @@ export function getHashtags (text, lowerCase) {
   }
 }
 
-let DigestUsersText = ''
-let DigestUsersCached = {}
+let EditionLayoutText = ''
+let EditionLayoutCached = {}
 
-export function getDigestUsers () {
+export function getEditionLayout () {
   // Entries: username1, username2@server2 *SectionName username3@server3#tag3, #followtopic4, ...
-  let { curationDigestUsers } = store.get()
-  if (curationDigestUsers === DigestUsersText) {
-    return DigestUsersCached
+  let { curationEditionLayout } = store.get()
+  if (curationEditionLayout === EditionLayoutText) {
+    return EditionLayoutCached
   }
 
   const rewritten = []
-  const sectionEntries = curationDigestUsers.trim().split('*')
-  const digestUsers = {}
+  const sectionEntries = curationEditionLayout.trim().split('*')
+  const editionLayout = {}
   let rewrite = false
 
-  let userCount = 0
+  let index = 1
   for (const [j, sectionEntry] of sectionEntries.entries()) {
     let names = sectionEntry.replace(/,/g, ' ').trim().split(/\s+/)
     if (!names[0]) {
@@ -172,6 +172,8 @@ export function getDigestUsers () {
     if (!names.length) {
       continue
     }
+    editionLayout[section] = { tag: '', section, index }
+
     const userEntries = names.map(s => s.trim()).map(s => s.startsWith('@') ? s.substr(1).trim() : s).filter(s => s)
     const secusers = []
     for (const userEntry of userEntries) {
@@ -186,13 +188,13 @@ export function getDigestUsers () {
           // #tagname
           digestName = match[3]
         }
-        if (digestUsers[digestName]) {
+        if (editionLayout[digestName]) {
           secusers.push('Duplicate:' + userEntry)
           rewrite = true
         } else {
           secusers.push(userEntry)
-          userCount += 1
-          digestUsers[digestName] = { tag, section, index: userCount }
+          editionLayout[digestName] = { tag, section, index }
+          index += 1
         }
       } else {
         if (userEntry.startsWith('Invalid:') || userEntry.startsWith('Duplicate:')) {
@@ -207,13 +209,13 @@ export function getDigestUsers () {
   }
 
   if (rewrite) {
-    curationDigestUsers = rewritten.join('')
-    store.set({ curationDigestUsers })
+    curationEditionLayout = rewritten.join('')
+    store.set({ curationEditionLayout })
   }
 
-  DigestUsersText = curationDigestUsers
-  DigestUsersCached = digestUsers
-  return digestUsers
+  EditionLayoutText = curationEditionLayout
+  EditionLayoutCached = editionLayout
+  return editionLayout
 }
 
 export function getEditionTimeStrs () {
