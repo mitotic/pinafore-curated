@@ -6,11 +6,9 @@ import { toast } from '../_components/toast/toast.js'
 import { difference } from '../_thirdparty/lodash/objects.js'
 
 import { date2hhmmISO, offsetDaysInDate } from './curationStore.js'
-import { USER_FOLLOW_UPDATE, setParam, getParam, newUserFollow, removeUserFollow, setUserFollow, getCurrentFollows } from './curationCache.js'
+import { USER_FOLLOW_UPDATE, newUserFollow, removeUserFollow, setUserFollow, getCurrentFollows } from './curationCache.js'
 
 import { updateBioInfo } from './curationGeneral.js'
-
-const FOLLOWS_REFRESH_TIME = 'followsRefreshTime'
 
 export async function toggleTagFollow (tagName) {
   const { currentInstance, accessToken, curationTagsFollowed } = store.get()
@@ -38,11 +36,11 @@ export async function toggleTagFollow (tagName) {
 
 export async function refreshCurationFollows (force) {
   // Create/update user DB
-  const { loggedInInstances, currentInstance, verifyCredentials, curationTagsAmpFactor } = store.get()
+  const { loggedInInstances, currentInstance, verifyCredentials, curationTagsAmpFactor, curationLastFollowRefresh } = store.get()
   const currentFollows = getCurrentFollows()
 
   if (!force && Object.keys(currentFollows).length) {
-    const lastRefreshTime = new Date(getParam(FOLLOWS_REFRESH_TIME) || 0)
+    const lastRefreshTime = new Date(curationLastFollowRefresh || 0)
     if ((Date.now() - lastRefreshTime.getTime()) < 3600 * 1000) {
       // Less than an hour since the last refresh
       return
@@ -74,12 +72,12 @@ export async function refreshCurationFollows (force) {
   const newFollowTime = date2hhmmISO(new Date(offsetDaysInDate(new Date(), -1)))
 
   for (const newTag of newTags) {
-    if (newTag in currentFollows) {
+    const username = '#' + newTag
+    if (username in currentFollows) {
       continue
     }
 
     // New tag follow
-    const username = '#' + newTag
     const tagFollow = newUserFollow({
       username,
       acct: username,
@@ -133,6 +131,6 @@ export async function refreshCurationFollows (force) {
       console.log('refreshCurationFollows: Updating user', username, update, newFollow, userFollow)
     }
   }
-  setParam(FOLLOWS_REFRESH_TIME, date2hhmmISO())
+  store.set({ curationLastFollowRefresh: date2hhmmISO() })
   console.log('refreshCurationFollows: COMPLETED')
 }

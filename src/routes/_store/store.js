@@ -47,9 +47,10 @@ const persistedState = {
   curationViewsPerDay: 300,
   curationDaysOfData: 30,
   curationEditionTime: '', // hh:mm value (local time) TODO: up to 4 editions per day
+  curationDigestUsers: '',
   curationSecretKey: 'default', // Low-grade secret key (used to generate HMAC-based random numbers to filter posts)
   curationTagsFollowed: [],
-  curationTagsAmpFactor: 4,
+  curationTagsAmpFactor: 1,
   curationDisabled: false,
   curationShowTime: false,
   curationShowAllStatus: false,
@@ -61,14 +62,14 @@ const persistedState = {
   curationDevMode: false,
   curationDevFetchStatus: true,
   curationDevMessageHook: true,
-  curationDigestUsers: '',
   curationDataVersion: '',
   curationTimezone: '', // Continent/City (TODO)
   curationLastMotxDates: {}, // {motd_date, motw_day, motm_month}
-  curationLastSaveInterval: '' // Start time (yyyy-mm-ddThh:mmZ) for start of last status summary save interval
+  curationLastSaveInterval: '', // Start time (yyyy-mm-ddThh:mmZ) for start of last status summary save interval
+  curationLastFollowRefresh: '' // Time (yyyy-mm-ddThh:mmZ) of last user follow/hashtag follow refresh
 }
 
-export const CURATION_SETTINGS = ['curationViewsPerDay', 'curationDaysOfData', 'curationEditionTime', 'curationSecretKey', 'curationDisabled', 'curationLastMotxDates', 'curationLastSaveInterval'].reduce((obj, key) => ({ ...obj, [key]: persistedState[key] }), {})
+export const CURATION_SETTINGS = ['curationViewsPerDay', 'curationDaysOfData', 'curationEditionTime', 'curationDigestUsers', 'curationSecretKey', 'curationDisabled', 'curationLastMotxDates', 'curationLastSaveInterval', 'curationLastFollowRefresh'].reduce((obj, key) => ({ ...obj, [key]: persistedState[key] }), {})
 
 const nonPersistedState = {
   customEmoji: {},

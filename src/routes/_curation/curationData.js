@@ -25,7 +25,7 @@ export async function eraseAllCurationData () {
   console.log('eraseAllData: Cleared Buffer store')
   await clearStatusEditionStore()
   console.log('eraseAllData: Cleared Edition store')
-  store.set({ curationLastSaveInterval: '', curationDataVersion: MAHOOT_DATA_VERSION })
+  store.set({ curationLastSaveInterval: '', curationLastFollowRefresh: '', curationDataVersion: MAHOOT_DATA_VERSION })
 }
 
 export async function eraseRecentCurationData () {
@@ -42,7 +42,7 @@ export async function eraseRecentCurationData () {
   console.log('eraseRecentCurationData: Removed recent summaries')
   await clearStatusEditionStore()
   console.log('eraseRecentCurationData: Cleared Edition store')
-  store.set({ curationLastSaveInterval: olderLastSaveInterval, curationUpdatingRecent: date2hhmmISO(Date.now() - 30 * 1000) })
+  store.set({ curationLastSaveInterval: olderLastSaveInterval, curationLastFollowRefresh: '', curationUpdatingRecent: date2hhmmISO(Date.now() - 30 * 1000) })
 }
 
 export async function exportCurationData () {
