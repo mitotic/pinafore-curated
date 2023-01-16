@@ -1,10 +1,12 @@
 # Mahoot User Guide
 
-Version 0.3.12
+Version 0.4.0
 
 - [Getting started](#getting-started)
 
 - [Basic settings](#basic-settings)
+
+- [Following hashtags](#following-hashtags)
 
 - [Posting statistics](#posting-statistics)
 
@@ -89,6 +91,27 @@ For settings like this involving numbers or text, click the *Update* button furt
 <em>Update button</em>
 </p>
 
+## Following hashtags
+
+Mastodon allows you to follow hashtags (like ``#climatechange``) just like you follow users. Mahoot also allows you to curate posts with followed hashtags in the same manner as posts from followed users. This can be very useful because following a popular hashtag can direct a firehose of posts to your feed.
+
+To follow a hashtag, use the search menu from the top bar and type the hashtag you wish to follow:
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/HashTagSearch.png"
+     alt="Searching for hashtag climate change">
+<br>
+<em>Search for hashtag</em>
+</p>
+
+Then select the hashtag from the search results to go to the hashtag page. The button near the top of the page allows you follow/unfollow the hashtag.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/HashtagFollow.png"
+     alt="Hashtag page for climate change showing follow/unfollow button">
+<br>
+<em>Follow/unfollow hashtag</em>
+</p>
 
 ## Posting statistics
 
@@ -103,15 +126,15 @@ For settings like this involving numbers or text, click the *Update* button furt
 
 The posting statistics are displayed at the bottom of the *Settings > Curation* page, sorted in descending order of posts per day (as shown in the example above). (*Note*: When you first start using Mahoot, it may take a few minutes for the statistics to appear.)
 
-By default, Mahoot will guarantee each of your followees a certain number of views (or impressions) per day, known as the *Mahoot Number*. The default Mahoot Number is displayed in the statistics section. It will be typically larger than the number of desired daily views divided by the number of followees, because not all your followees will post that frequently. In the above example, the default Mahoot number is 10 for 123 followees sharing an average of 330 views per day.
+By default, Mahoot will guarantee each of your followees a certain number of views (or impressions) per day, known as the *Mahoot Number*. The default Mahoot Number is displayed in the statistics section. It will be typically larger than the number of desired daily views divided by the number of followees, because not all your followees will post that frequently. In the above example, the default Mahoot number is 13.3 for 130 followees sharing an average of 330 views per day.
 
-The posting statistics for all your followees are displayed in the statistics section, sorted in descending order of posts per day. For each followee, their Mastodon username, average posts per day, post view probability, view amplification factor, and the full name are shown. The amplification factor can be used to allocate more views to a followee. The default amplification factor is 1, but you can increase it or decrease it. Click on the faucet icon on the left to display a pop up menu for any followee.
+The posting statistics for all your followees are displayed in the statistics section, sorted in descending order of posts per day. For each followee, their Mastodon username, average posts per day, post view probability, view amplification factor, and the full name are shown. The amplification factor can be used to allocate more views to a followee. The default amplification factor is 1, but you can increase it or decrease it. Click on the faucet icon on the left to display a pop up menu for any followee. Note that followed hashtags (like ``#climatechange`` above) are curated just like a followed user.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/MahootUsers.png"
      alt="Popup information for 3 Mahoot users">
 <br>
-<em>Popup windows showing statistics for the most actively posting followees #2-4. Left user has default amp value. Middle user has been amped down to have half the default Mahoot number, and the right one has been amped up to double the default number. Total posts per day for each followee is shown as the sum of prioritized ("hashtagged") posts plus other posts and reblogs (see Experimental Settings section below). Separate view probabilities are also shown for these two types of posts.</em>
+<em>Popup windows showing statistics for the most actively posting followees #1-3. The top user, <tt>#climatechange</tt>, has an amp value of 2 and therefore has double the default Mahoot number. User #2 has been amped down to have half the default Mahoot number, and user #3 has the default number. Total posts per day for each followee is shown as the sum of prioritized ("hashtagged") posts plus other posts and reblogs (see Experimental Settings section below). Separate view probabilities are also shown for these two types of posts.</em>
 </p>
 
 The popup menu allows you to *amp up* (or *amp down*) a followee, i.e. double or halve their Mahoot number. You can use this feature to amp up your colleagues so that you never miss any of their posts. You can also use it to amp down those who post interesting stuff, but just a bit too much of it every day. Amping up an active followee can lower the default Mahoot number, as all the others followees will get a smaller share of the daily views. (You can increase the daily average limit to compensate for that.)
@@ -210,21 +233,22 @@ You don't have to wait a whole day to read a new digest edition in your feed. Th
 <em>Mahoot simple edition example.</em>
 </p>
 
-The ``Username#tags for auto digest`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. Here's a sample edition format:
+The ``Digest edition layout`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. Here's a sample edition layout:
 
     user1, blogger@server2#motx, ...
     *News
     journal@server3, reporter@server4#politics, ...
     *Science
-    scientist@server5#climate, doctor@server6#motx, ...
+    columnist@server5#motx, scientist@server6#climate, #climatechange, ...
     *Opinion
     pundit@server7, opinionated@server8, ...
 
-Editions can be considered as a single-feed alternative to Mastodon Lists. More sophisticated ways to format editions can be expected in the future.
 - Note 1: Empty editions will appear as just a thick line
-- Note 2: For users on your server, ``@server`` is omitted from the username
+- Note 2: For users on your Mastodon server, ``@server`` should be omitted from the username
 - Note 3: Suffix ``#motx`` indicates all periodic posts from the user should be inlcuded in the edition, as explained below
+- Note 4: Plain hashtag ``#climatechange`` indicates all non-dropped and non-reply posts on the topic should be included in the edition (assuming you are following ``#climatechange``)
 
+Editions can be considered as a single-feed alternative to Mastodon Lists. More sophisticated ways to format editions can be expected in the future.
 
 ### Periodic posts (message of the day/week/month)
 

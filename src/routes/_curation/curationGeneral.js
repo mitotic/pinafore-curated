@@ -4,9 +4,9 @@ import { zeropad, offsetDaysInDate, nextTimeInterval } from './curationStore.js'
 
 import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
-export const MAHOOT_CODE_VERSION = '0.3.13'
+export const MAHOOT_CODE_VERSION = '0.4.0'
 
-export const MAHOOT_DATA_VERSION = '0.3'
+export const MAHOOT_DATA_VERSION = '0.4'
 
 export const UPDATE_INTERVAL_MINUTES = 120 // Interval for updating status summaries
 
