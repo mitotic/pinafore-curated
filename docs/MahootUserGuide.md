@@ -24,7 +24,7 @@ The [README](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootU
 
 ## Getting Started
 
-You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a web browser. There is currently no phone app available, but this client should work fine on a smart phone web browser.
+You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a web browser. There is currently no separate phone app available, but this client should work fine on a smart phone web browser. It can also be installed as a progressive web app (PWA) on the phone.
 
 Click on the ``Log in`` button and type the name of your Mastodon instance to login. (*At this time, Mahoot only supports logging into a single Mastodon instance, even though Pinafore supports multiple instances.*)
 

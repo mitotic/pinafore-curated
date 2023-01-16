@@ -40,7 +40,9 @@ Mahoot will also implement a feature where you can curate some posts into digest
 
 ## Using Mahoot
 
-You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a browser on a computer or a smart phone (there is currently no phone app available). Simply log into a Mastodon instance and start browsing. You can go to the *Settings > Mahoot* menu to see the configuration options. The most important setting is *Average views per day* (see below), which statistically limits your viewing. (The [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md) provides more detailed information on different settings.)
+You can try out Mahoot at [https://Mahoot.dev](https://mahoot.dev) using a browser on a computer or a smart phone. There is currently no separate phone app available, but Pinafore+Mahoot is a progressive web app (PWA) that can be installed on the phone. 
+
+To use Mahoot, simply log into a Mastodon instance and start browsing. You can go to the *Settings > Mahoot* menu to see the configuration options. The most important setting is *Average views per day* (see below), which statistically limits your viewing. (The [Mahoot User Guide](https://github.com/mitotic/pinafore-mahoot/blob/master/docs/MahootUserGuide.md) provides more detailed information on different settings.)
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/SettingsBasic.png"
