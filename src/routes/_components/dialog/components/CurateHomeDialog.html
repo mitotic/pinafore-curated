@@ -69,7 +69,7 @@ export default {
     postsLabel: ({ globalStats }) => globalStats ? 'Avg daily posts: ' + globalStats.status_daily.toFixed(0) : '',
     viewsLabel: ({ globalStats, $curationViewsPerDay }) => globalStats ? 'Avg daily views: ' + globalStats.shown_daily.toFixed(0) + ' (limit: ' + $curationViewsPerDay + ')' : '',
     editionsLabel: ({ $curationEditionStats }) => 'Editions: ' + $curationEditionStats,
-    lastDayLabel: ({ globalStats }) => 'Dev: LastDayStats: ' + globalStats.shown_lastday.toFixed(0) + '/' + globalStats.status_lastday.toFixed(0),
+    lastDayLabel: ({ globalStats }) => globalStats ? 'Dev: LastDayStats: ' + globalStats.shown_lastday.toFixed(0) + '/' + globalStats.status_lastday.toFixed(0) : '',
     items: ({
       isDevMode, hasEditions, postsLabel, viewsLabel, editionsLabel, showLabel, lastDayLabel
     }) => ([
