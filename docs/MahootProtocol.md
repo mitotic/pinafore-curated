@@ -12,7 +12,9 @@ Otherwise, some posts will need to be dropped. Consider the unweighted case wher
 
 We can treat the followees differentially by assigning an *amplification factor* F<sub>user</sub> to each followee. You can then estimate M<sub>def</sub> using the same method&mdash;by pretending that an F<sub>user</sub> value of 2 means that followee is effectively two followees and so on. The user-specific Mahoot number M<sub>user</sub> is M<sub>def</sub> times the amplification factor, F<sub>user</sub>. 
 
-For followees who post less than their M<sub>user</sub> value, the probability of viewing their post is 1. For followees who post more than their M<sub>user</sub> value, the probability of viewing their post is M<sub>user</sub> / P<sub>user</sub>, where P<sub>user</sub> is their daily posting rate.
+For followees who post less than their M<sub>user</sub> value, the probability of viewing their post is 1. For followees who post more than their M<sub>user</sub> value, the probability of viewing their post is M<sub>user</sub> / P<sub>user</sub>, where P<sub>user</sub> is their daily posting rate. Usually, only a small fraction of an user's followees post more than the default Mahoot number.
+
+Mastodon also allows an user to follow hashtags. Following a single hashtag can insert a "firehose" of posts in to your timeline. Mahoot helps deal with this by treating following a hashtag the same as following an user, with an adjustable amplification factor associated with each hashtag being followed. 
 
 ## Post prioritization
 

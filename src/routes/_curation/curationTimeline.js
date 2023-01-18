@@ -42,18 +42,26 @@ export async function updateEditionStats () {
   const editionTimeStrs = getEditionTimeStrs()
   const editionCount = editionTimeStrs.length
 
-  const editionStats = []
-  for (const [j, editionTimeStr] of editionTimeStrs.entries()) {
-    const editionTime = hhmm2localTime(editionTimeStr)
-    const editionId = createSnowflakeId(editionTime)
-    const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount] // Prev edition time
-    const startTime = hhmm2localTime(startTimeStr, editionTime.getTime())
-    const startId = createSnowflakeId(startTime)
+  let curationEditionStats
+  if (!editionTimeStrs.length) {
+    curationEditionStats = 'none'
+  } else {
+    let maxEditionId = '0'
+    const editionStats = []
+    for (const [j, editionTimeStr] of editionTimeStrs.entries()) {
+      const editionTime = hhmm2localTime(editionTimeStr)
+      const editionId = createSnowflakeId(editionTime)
+      const startTimeStr = editionTimeStrs[(j + editionCount - 1) % editionCount] // Prev edition time
+      const startTime = hhmm2localTime(startTimeStr, editionTime.getTime())
+      const startId = createSnowflakeId(startTime)
 
-    const editionStatuses = await getAllEditionStatuses(startId, editionId)
-    editionStats.push(editionTimeStr + ' (' + editionStatuses.length + ')')
+      const editionStatuses = await getAllEditionStatuses(startId, editionId)
+      editionStats.push(editionTimeStr + ' (' + editionStatuses.length + ')')
+      maxEditionId = maxEditionId >= editionId ? maxEditionId : editionId
+    }
+    const recentEditionStatuses = await getAllEditionStatuses(maxEditionId, createSnowflakeId())
+    curationEditionStats = editionStats.join(', ') + ' [next: *' + recentEditionStatuses.length + ']'
   }
-  const curationEditionStats = editionStats.length ? editionStats.join(', ') : 'none'
   store.set({ curationEditionStats })
 }
 
@@ -112,7 +120,7 @@ export async function reblogEditionStatuses (nameSuffix, editionTimeStr, prevEdi
 }
 
 let PrevStatusId = 0
-let MaxStatusId = 0
+let MaxStatusId = ''
 
 export async function insertEditionStatuses (statuses, updating) {
   const editionTimeStrs = getEditionTimeStrs()
@@ -159,7 +167,7 @@ export async function insertEditionStatuses (statuses, updating) {
     }
     result.push(status)
     PrevStatusId = status.id
-    MaxStatusId = Math.max(status.id, MaxStatusId)
+    MaxStatusId = MaxStatusId && (MaxStatusId >= status.id) ? MaxStatusId : status.id
   }
   return result
 }
@@ -206,7 +214,7 @@ export function curateStatuses (instanceName, statuses, updating) {
 
   const result = []
   for (const status of statuses) {
-    MaxStatusId = Math.max(status.id, MaxStatusId)
+    MaxStatusId = MaxStatusId && (MaxStatusId >= status.id) ? MaxStatusId : status.id
     if (nextIntervalId && (status.id >= nextIntervalId)) {
       prevIntervalComplete = true
     }

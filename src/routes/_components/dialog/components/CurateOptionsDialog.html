@@ -25,7 +25,7 @@ export default {
   }),
   computed: {
     username: ({ curateInfo }) => curateInfo.username,
-    droppedLabel: ({ curateInfo }) => curateInfo.curation_dropped ? 'Dropped: ' + curateInfo.curation_dropped : '',
+    statusLabel: ({ curateInfo }) => curateInfo.label || '',
     followInfo: ({ $curationFilterTime, username }) => getCurrentFollows() ? (getCurrentFollows()[username] || null) : {},
     userProb: ({ $curationFilterTime, username }) => getFilter() ? getFilter()[1][username] : null,
     globalStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
@@ -55,12 +55,12 @@ export default {
     timezone: ({ followInfo }) => followInfo ? USER_TIMEZONE_KEY + ': ' + (followInfo[USER_TIMEZONE_KEY] || 'UTC') : '',
     topicsLabel: ({ userProb }) => 'Dev: Topics: ' + userProb[USER_TOPICS_KEY],
     items: ({
-      isTracked, isFollowee, isFollowedTag, isDevMode, droppedLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
+      isTracked, isFollowee, isFollowedTag, isDevMode, statusLabel, userLabel, postLabel, probLabel, engagedLabel, mahootLabel, ampLabel, timezone, digestLabel, topicsLabel
     }) => ([
-      droppedLabel && {
-        key: 'dropped',
-        label: droppedLabel,
-        icon: '#fa-trash-can'
+      statusLabel && {
+        key: 'label',
+        label: statusLabel,
+        icon: statusLabel.startsWith('Dropped') ? '#fa-trash-can' : ''
       },
       {
         key: 'user',

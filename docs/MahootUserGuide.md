@@ -60,6 +60,15 @@ After you login and give permissions, you will reach the Mastodon Home Timeline 
 <em>Mahoot Home Timeline showing curation statistics at the top right corner: The average number posts received daily in the timeline (left) and the number that are actually displayed after curation (right)</em>
 </p>
 
+If you click on the faucet icon on the top right corner, you'll see a popup showing a link to the curation settings page, some more curation statistics, a list of editions available with post counts, and an option to re-display the most recent [Digest Edition](#digest-editions) in your Home timeline.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/mitotic/pinafore-mahoot/master/docs/images/HomePopup.png"
+     alt="Mahoot home popup showing statistics">
+<br>
+<em>Mahoot Home popup showing more curation statistics</em>
+</p>
+
 ## Basic settings
 
 To configure Mahoot, go to the ``Settings`` page:

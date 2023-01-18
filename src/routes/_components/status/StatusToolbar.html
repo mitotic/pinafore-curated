@@ -173,19 +173,20 @@
         } else {
           const editioned = status.curation_edition && status.reblog
           const reStatus = editioned ? status.reblog : status
-          const dropped = editioned ? 'Edition/' + reStatus.curation_save : status.curation_dropped
+          const label = editioned ? 'Digest: ' + reStatus.curation_save : (status.curation_dropped ? 'Dropped: ' + status.curation_dropped : '')
           const username = reStatus.curation_tag || reStatus.account.acct.toLowerCase()
-          console.log('StatusToolbar:', username, dropped, reStatus)
+          console.log('StatusToolbar:', username, label, reStatus)
           if (isFollowOrSelf(username, getCurrentFollows())) {
             const showCurateOptionsDialog = await importShowCurateOptionsDialog()
             showCurateOptionsDialog({
               username,
               status: reStatus,
-              curation_dropped: dropped
+              label
             })
           } else {
             const showCurateModalDialog = await importShowCurateModalDialog()
-            showCurateModalDialog({ message: 'Non-followed user ' + username })
+            const message = (status.curation_dropped ? 'Dropped: ' + status.curation_dropped : '') + ' (Non-followed user ' + username + ')'
+            showCurateModalDialog({ message })
           }
         }
       },

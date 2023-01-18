@@ -261,7 +261,7 @@
         const { entry } = event
         /// console.log('onClickAction entry', event, entry.username)
         const showCurateOptionsDialog = await importShowCurateOptionsDialog()
-        showCurateOptionsDialog({ username: entry.username, status: null, curation_dropped: '' })
+        showCurateOptionsDialog({ username: entry.username, status: null, label: '' })
         return false
       },
       onSubmitInstance (event) {

@@ -63,7 +63,7 @@ export default {
     },
     showLabel: ({ $curationEditionTime }) => {
       const [lastEdition] = getLastEditionTimes()
-      return lastEdition ? 'Show ' + lastEdition + ' edition now' : ''
+      return lastEdition ? 'Show ' + lastEdition + ' Edition now' : ''
     },
     globalStats: ({ $curationFilterTime }) => getFilter() ? (getFilter()[0] || null) : null,
     postsLabel: ({ globalStats }) => globalStats ? 'Avg daily posts: ' + globalStats.status_daily.toFixed(0) : '',
