@@ -15,8 +15,13 @@ import { curateSingleStatus } from './curationFilter.js'
 
 function editionLabel (status, display) {
   // Section names are of the form #motx or *[name]
-  const username = status.account.acct.toLowerCase()
   const section = status.curation_save || '#'
+
+  if (display) {
+    return section.startsWith('*') ? section.slice(1) : section
+  }
+
+  const username = status.account.acct.toLowerCase()
   const editionLayout = getEditionLayout()
 
   let sectionIndex = '9999'
@@ -34,7 +39,7 @@ function editionLabel (status, display) {
     }
   }
   // Sort by section index, then section name, then user index, then username then post time
-  const label = display ? section : sectionIndex + '/' + section + '/' + userIndex + '@' + username + '-' + date2hhmmISO(getSnowflakeDate(status.id))
+  const label = sectionIndex + '/' + section + '/' + userIndex + '@' + username + '-' + date2hhmmISO(getSnowflakeDate(status.id))
   return label
 }
 

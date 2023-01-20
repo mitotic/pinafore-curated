@@ -4,7 +4,7 @@ import { zeropad, offsetDaysInDate, nextTimeInterval } from './curationStore.js'
 
 import { USER_FOLLOW_UPDATE, getSummary, setSummary, getSummaryKey, newUserFollow } from './curationCache.js'
 
-export const MAHOOT_CODE_VERSION = '0.4.0'
+export const MAHOOT_CODE_VERSION = '0.4.1'
 
 export const MAHOOT_DATA_VERSION = '0.4'
 
@@ -89,9 +89,16 @@ function extractBioInfo (key, text) {
   return match ? match[1].replace(/\s*,\s*/g, ' ').replace(/\s+/g, ' ').trim() : ''
 }
 
-export function getMyUsername () {
+export function getMyUsername (full) {
   const { currentInstance, verifyCredentials } = store.get()
-  return verifyCredentials[currentInstance] ? verifyCredentials[currentInstance].acct.toLowerCase() : ''
+  if (!verifyCredentials[currentInstance]) {
+    return ''
+  }
+  let username = verifyCredentials[currentInstance].acct.toLowerCase()
+  if (full) {
+    username += '@' + currentInstance.toLowerCase()
+  }
+  return username
 }
 
 export function nextInterval (lastIntervalStr) {
@@ -146,66 +153,69 @@ let EditionLayoutCached = {}
 
 export function getEditionLayout () {
   // Entries: username1, username2@server2 *SectionName username3@server3#tag3, #followtopic4, ...
-  let { curationEditionLayout } = store.get()
+  let { currentInstance, curationEditionLayout } = store.get()
   if (curationEditionLayout === EditionLayoutText) {
     return EditionLayoutCached
   }
 
-  const rewritten = []
-  const sectionEntries = curationEditionLayout.trim().split('*')
+  const lines = curationEditionLayout.trim().split(/[\r\n]+/).map(s => s.trim()).filter(s => s)
   const editionLayout = {}
   let rewrite = false
 
-  let index = 1
-  for (const [j, sectionEntry] of sectionEntries.entries()) {
-    let names = sectionEntry.replace(/,/g, ' ').trim().split(/\s+/)
-    if (!names[0]) {
-      continue
-    }
-    let section
-    if (!j) {
-      section = '*'
-    } else {
-      section = '*' + names[0]
-      names = names.slice(1)
-    }
-    if (!names.length) {
-      continue
-    }
-    editionLayout[section] = { tag: '', section, index }
+  let index = 1 // Start indexing at 1 so that #MOTx section can be 0
+  let section = '*'
+  editionLayout[section] = { tag: '', section, index }
+  const rewritten = []
 
-    const userEntries = names.map(s => s.trim()).map(s => s.startsWith('@') ? s.substr(1).trim() : s).filter(s => s)
-    const secusers = []
+  for (const line of lines) {
+    if (line.indexOf('@') < 0 && line.indexOf('#') < 0) {
+      section = '*' + line
+      editionLayout[section] = { tag: '', section, index }
+      rewritten.push(line + '\n')
+      continue
+    }
+    const userEntries = line.replace(/,/g, ' ').trim().split(/\s+/).filter(s => s)
+    if (!userEntries.length) {
+      continue
+    }
+
+    const userList = []
     for (const userEntry of userEntries) {
-      const match = userEntry.match(/^(\w+(@[-.a-z0-9]+)?)?(#\w+)?$/i) // At least one pattern must match for non-null string
+      const match = userEntry.match(/^((@\w+)(@[-.a-z0-9]+)?)?(#\w+)?$/i) // At least one pattern must match for non-null string
       if (match) {
         let digestName = ''
         let tag = ''
         if (match[1]) {
-          digestName = match[1].toLowerCase()
-          tag = (match[3] || '').slice(1).toLowerCase()
+          // @username[@instance]#tagname
+          if (match[3] && match[3].toLowerCase() === currentInstance.toLowerCase()) {
+            // Omit instance name for local user
+            digestName = match[2].slice(1).toLowerCase()
+          } else {
+            digestName = match[1].slice(1).toLowerCase()
+          }
+          tag = (match[4] || '').slice(1).toLowerCase()
         } else {
-          // #tagname
-          digestName = match[3]
+          // #tagname only
+          digestName = match[4]
         }
         if (editionLayout[digestName]) {
-          secusers.push('Duplicate:' + userEntry)
+          userList.push(':Duplicate:' + userEntry)
           rewrite = true
         } else {
-          secusers.push(userEntry)
+          userList.push(userEntry)
           editionLayout[digestName] = { tag, section, index }
           index += 1
         }
       } else {
-        if (userEntry.startsWith('Invalid:') || userEntry.startsWith('Duplicate:')) {
-          secusers.push(userEntry)
+        if (userEntry.startsWith(':Invalid:') || userEntry.startsWith(':Duplicate:')) {
+          userList.push(userEntry)
         } else {
-          secusers.push('Invalid:' + userEntry)
+          userList.push(':Invalid:' + userEntry)
           rewrite = true
         }
       }
     }
-    rewritten.push((section === '*' ? '' : section + '\n') + secusers.join(', ') + '\n')
+    rewritten.push(userList.join(' ') + '\n')
   }
 
   if (rewrite) {

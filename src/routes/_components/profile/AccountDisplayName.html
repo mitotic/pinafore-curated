@@ -1,7 +1,10 @@
-<span class="account-display-name">{@html massagedAccountName }</span>
+<span class={className}>{@html massagedAccountName }</span>
 <style>
   .account-display-name {
     pointer-events: none; /* allows focus to work correctly, focus on the parent only */
+  }
+  .account-display-name-bold {
+    font-weight: bold;
   }
 </style>
 <script>
@@ -9,12 +12,17 @@
   import { store } from '../../_store/store.js'
   import escapeHtml from 'escape-html'
   import { removeEmoji } from '../../_utils/removeEmoji.js'
+  import { classname } from '../../_utils/classname.js'
 
   export default {
     store: () => store,
     computed: {
       emojis: ({ account }) => (account.emojis || []),
       accountName: ({ account }) => (account.display_name || account.username),
+      className: ({ account }) => (classname(
+        'account-display-name',
+        (account.username || '').startsWith('dailyedition') && 'account-display-name-bold'
+      )),
       massagedAccountName: ({ accountName, emojis, $autoplayGifs, $omitEmojiInDisplayNames }) => {
         accountName = escapeHtml(accountName)
 

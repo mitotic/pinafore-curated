@@ -1,4 +1,8 @@
-{#if error}
+{#if (account.username || '').startsWith('dailyedition')}
+<SvgIcon className={computedClass} style={svgStyle} href="#fa-newspaper" />
+{:elseif (account.username || '').startsWith('replycontext')}
+<SvgIcon className={computedClass} style={svgStyle} href="#fa-reply" />
+{:elseif error}
 <SvgIcon className={computedClass} style={svgStyle} href="#fa-user" />
 {:elseif $autoplayGifs}
   <LazyImage

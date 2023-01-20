@@ -57,9 +57,9 @@
              bind:value='$curationEditionTime' placeholder="hh:mm[, hh:mm, ...] local time for daily digest edition(s)"
       >
     <br>
-    <label for="curationEditionLayout">Digest edition layout (*Section, Username#tag, ...):</label>
+    <label for="curationEditionLayout">Digest edition layout (Section\n @user@server#tag ...):</label>
         <textarea bind:value="$curationEditionLayout"
-                  placeholder="username1, username2@server2 *SectionName username3@server3#tag3, #followedTag, ..."
+                  placeholder="SectionName\n @user1@server1 @user2@server2#tag2 #followedTag ..."
                   maxlength="1000"></textarea>
     <label class="setting-group">
       Amplify high boosts:

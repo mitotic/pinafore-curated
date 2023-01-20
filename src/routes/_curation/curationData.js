@@ -58,7 +58,7 @@ export async function exportCurationData () {
 
   const paramObj = {}
   paramObj.mahoot_data_version = MAHOOT_DATA_VERSION
-  paramObj.username = getMyUsername()
+  paramObj.username = getMyUsername(true)
 
   for (const setting of Object.keys(CURATION_SETTINGS)) {
     paramObj[setting] = store.get()[setting]
@@ -96,8 +96,8 @@ export function importCurationData (jsonString) {
     console.log('importCurationData:', errMsg)
     return errMsg
   }
-  if (!paramObj.username || paramObj.username !== getMyUsername()) {
-    errMsg = `USER MISMATCH ${paramObj.username} != ${getMyUsername()}`
+  if (!paramObj.username || paramObj.username !== getMyUsername(true)) {
+    errMsg = `USER MISMATCH ${paramObj.username} != ${getMyUsername(true)}`
     console.log('importCurationData:', errMsg)
     return errMsg
   }

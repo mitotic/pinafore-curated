@@ -1,6 +1,6 @@
 # Mahoot User Guide
 
-Version 0.4.0
+Version 0.4.1
 
 - [Getting started](#getting-started)
 
@@ -242,22 +242,21 @@ You don't have to wait a whole day to read a new digest edition in your feed. Th
 <em>Mahoot simple edition example.</em>
 </p>
 
-The ``Digest edition layout`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify ``*SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. Here's a sample edition layout:
+The ``Digest edition layout`` option allows you to specify a (comma/space-separated) list of usernames whose posts will be automatically digested and displayed in the next "edition" (excluding posts that are dropped by the Mahoot algorithm). You can append a hashtag to the username to indicate that only those posts with that hashtag will be included in the digest. You can also specify a ``SectionName`` to indicate the start of a named section of the edition, followed by a list of usernames for that section. Here's a sample edition layout:
 
-    user1, blogger@server2#motx, ...
-    *News
-    journal@server3, reporter@server4#politics, ...
-    *Science
-    columnist@server5#motx, scientist@server6#climate, #climatechange, ...
-    *Opinion
-    pundit@server7, opinionated@server8, ...
+    @user1@server1 @blogger@server2#motx ...
+    News
+    @journal@server3 @reporter@server4#politics ...
+    Science
+    @columnist@server5#motx @scientist@server6#climate #climatechange, ...
+    Opinion
+    @pundit@server7 @opinionated@server8 ...
 
 - Note 1: Empty editions will appear as just a thick line
-- Note 2: For users on your Mastodon server, ``@server`` should be omitted from the username
-- Note 3: Suffix ``#motx`` indicates all periodic posts from the user should be inlcuded in the edition, as explained below
-- Note 4: Plain hashtag ``#climatechange`` indicates all non-dropped and non-reply posts on the topic should be included in the edition (assuming you are following ``#climatechange``)
+- Note 2: Suffix ``#motx`` indicates all periodic posts from the user (see below) should be inlcuded in the edition
+- Note 3: Plain hashtag ``#climatechange`` indicates all non-dropped and non-reply posts on the topic should be included in the edition (assuming you are following ``#climatechange``)
 
-Editions can be considered as a single-feed alternative to Mastodon Lists. More sophisticated ways to format editions can be expected in the future.
+Editions can be considered as a single-feed alternative to Mastodon Lists. More sophisticated ways to format editions can also be considered.
 
 ### Periodic posts (message of the day/week/month)
 

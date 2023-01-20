@@ -14,7 +14,7 @@ We can treat the followees differentially by assigning an *amplification factor*
 
 For followees who post less than their M<sub>user</sub> value, the probability of viewing their post is 1. For followees who post more than their M<sub>user</sub> value, the probability of viewing their post is M<sub>user</sub> / P<sub>user</sub>, where P<sub>user</sub> is their daily posting rate. Usually, only a small fraction of an user's followees post more than the default Mahoot number.
 
-Mastodon also allows an user to follow hashtags. Following a single hashtag can insert a "firehose" of posts in to your timeline. Mahoot helps deal with this by treating following a hashtag the same as following an user, with an adjustable amplification factor associated with each hashtag being followed. 
+Mastodon also allows an user to follow hashtags. Following a single hashtag can insert a "firehose" of posts in your timeline. Mahoot helps deal with this by treating a followed hashtag the same as a followed user, with an adjustable amplification factor associated with each followed hashtag. If a post includes multiple followed hashtags, then the post is fractionally allocated to each of those hashtags for compute the daily posting rate for the hashtag, P<sub>hashtag</sub>. The probability of viewing a post with multiple followed hashtags is computed as the average of the probability M<sub>hashtag</sub> / P<sub>hashtag</sub> for each hashtag.
 
 ## Post prioritization
 
